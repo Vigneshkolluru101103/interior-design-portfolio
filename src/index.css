@@ -1,0 +1,297 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Premium Color System - CSS Variables */
+:root {
+  /* Light Theme Colors */
+  --color-bg-primary: #F8F6F2;
+  --color-bg-surface: #FFFFFF;
+  --color-primary: #2F3E34;
+  --color-accent: #C6A969;
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #6B6B6B;
+  --color-border: #E5E5E5;
+  --color-glass: rgba(255, 255, 255, 0.8);
+  --color-shadow: rgba(0, 0, 0, 0.08);
+  
+  /* Minimal Luxury Color Scheme */
+  --color-background-light: #F8F6F2;
+  --color-surface-light: #FFFFFF;
+  --color-primary-light: #1A1A1A;
+  --color-accent-light: #C6A969;
+  --color-secondary-light: #6B6B6B;
+  --color-body-light: #4A4A4A;
+  --color-border-light: #E5E5E5;
+
+  --color-background-dark: #0F1110;
+  --color-surface-dark: #1A1D1B;
+  --color-primary-dark: #F5F5F5;
+  --color-accent-dark: #D4B97F;
+  --color-secondary-dark: #A0A0A0;
+  --color-body-dark: #C0C0C0;
+  --color-border-dark: #2A2A2A;
+
+  /* Premium Gradients */
+  --gradient-primary: linear-gradient(135deg, #C6A969, #E8D8A8);
+  --gradient-accent: linear-gradient(135deg, #2F3E34, #4A5D4F);
+  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+}
+
+[data-theme="dark"] {
+  /* Dark Theme Colors */
+  --color-bg-primary: #0F1110;
+  --color-bg-surface: #1A1D1B;
+  --color-primary: #E8E3D9;
+  --color-accent: #D4B97F;
+  --color-text-primary: #F5F5F5;
+  --color-text-secondary: #A0A0A0;
+  --color-border: #2A2A2A;
+  --color-glass: rgba(26, 29, 27, 0.8);
+  --color-shadow: rgba(0, 0, 0, 0.3);
+  
+  /* Premium Gradients */
+  --gradient-primary: linear-gradient(135deg, #D4B97F, #E8D8A8);
+  --gradient-accent: linear-gradient(135deg, #E8E3D9, #F5F5F5);
+  --gradient-glass: linear-gradient(135deg, rgba(26, 29, 27, 0.9), rgba(26, 29, 27, 0.7));
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  /* Smooth transitions for theme switching */
+  * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+}
+
+@layer components {
+  /* Premium Glassmorphism Effects */
+  .glass-surface {
+    background: var(--color-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 8px 32px var(--color-shadow);
+  }
+  
+  .glass-card {
+    background: var(--color-bg-surface);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 12px 40px var(--color-shadow);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+  }
+  
+  .glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px var(--color-shadow);
+    border-color: var(--color-accent);
+  }
+  
+  /* Premium Buttons */
+  .btn-primary {
+    background: var(--color-primary);
+    color: var(--color-bg-surface);
+    padding: 12px 32px;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px var(--color-shadow);
+  }
+  
+  .btn-primary:hover {
+    background: var(--color-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px var(--color-shadow);
+  }
+  
+  .btn-secondary {
+    background: transparent;
+    color: var(--color-primary);
+    padding: 12px 32px;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 16px;
+    border: 2px solid var(--color-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-secondary:hover {
+    background: var(--color-primary);
+    color: var(--color-bg-surface);
+    transform: translateY(-2px);
+  }
+  
+  /* Premium Typography */
+  .text-heading {
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    line-height: 1.2;
+  }
+  
+  .text-body {
+    font-family: 'Inter', sans-serif;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+  }
+  
+  .text-accent {
+    color: var(--color-accent);
+  }
+  
+  /* Premium Sections */
+  .section-primary {
+    background: var(--color-bg-primary);
+  }
+  
+  .section-surface {
+    background: var(--color-bg-surface);
+  }
+  
+  /* Premium Navbar */
+  .navbar-glass {
+    background: var(--color-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--color-border);
+    transition: all 0.3s ease;
+  }
+  
+  .navbar-scrolled {
+    background: var(--color-bg-surface);
+    box-shadow: 0 8px 32px var(--color-shadow);
+  }
+  
+  /* Premium Portfolio Grid */
+  .portfolio-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    cursor: pointer;
+  }
+  
+  .portfolio-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: flex;
+    align-items: flex-end;
+    padding: 24px;
+  }
+  
+  .portfolio-item:hover .portfolio-overlay {
+    opacity: 1;
+  }
+  
+  .portfolio-item:hover img {
+    transform: scale(1.05);
+  }
+  
+  /* Premium Form Elements */
+  .form-input {
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+  }
+  
+  .form-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(198, 169, 105, 0.1);
+  }
+  
+  .form-input::placeholder {
+    color: var(--color-text-secondary);
+  }
+  
+  /* Premium Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out;
+  }
+  
+  .animate-slide-in-left {
+    animation: slideInLeft 0.8s ease-out;
+  }
+  
+  .animate-slide-in-right {
+    animation: slideInRight 0.8s ease-out;
+  }
+}
+
+/* Minimal Luxury Color Classes */
+.bg-background-light { background-color: var(--color-background-light); }
+.bg-background-dark { background-color: var(--color-background-dark); }
+
+.bg-surface-light { background-color: var(--color-surface-light); }
+.bg-surface-dark { background-color: var(--color-surface-dark); }
+
+.text-primary-light { color: var(--color-primary-light); }
+.text-primary-dark { color: var(--color-primary-dark); }
+
+.text-accent-light { color: var(--color-accent-light); }
+.text-accent-dark { color: var(--color-accent-dark); }
+
+.text-secondary-light { color: var(--color-secondary-light); }
+.text-secondary-dark { color: var(--color-secondary-dark); }
+
+.text-body-light { color: var(--color-body-light); }
+.text-body-dark { color: var(--color-body-dark); }
+
+.border-accent-light { border-color: var(--color-accent-light); }
+.border-accent-dark { border-color: var(--color-accent-dark); }
