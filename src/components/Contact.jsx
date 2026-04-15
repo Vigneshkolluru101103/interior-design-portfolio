@@ -22,8 +22,35 @@ const Contact = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Handle form submission here
+    
+    // Save contact submission to localStorage
+    const submission = {
+      id: Date.now(),
+      ...formData,
+      timestamp: new Date().toISOString(),
+      status: 'new'
+    };
+    
+    // Get existing submissions
+    const existingSubmissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]');
+    
+    // Add new submission
+    existingSubmissions.unshift(submission);
+    
+    // Save to localStorage
+    localStorage.setItem('contactSubmissions', JSON.stringify(existingSubmissions));
+    
+    // Show success message
+    alert('Thank you for your message! I will get back to you soon.');
+    
+    // Reset form
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      project: '',
+      message: ''
+    });
   };
 
   const contactInfo = [
