@@ -96,17 +96,17 @@ const Experience = () => {
                 }`}>
                   <div className="glass-card p-8">
                     {/* Header */}
-                    <div className={`p-6 bg-gradient-to-r ${
-                      exp.type === 'current' ? 'from-accent-50 to-accent-100 dark:from-accent-900/20 dark:to-accent-800/20' :
+                    <div className={`p-6 bg-gradient-to-r rounded-xl border border-border-200 dark:border-border-600 mb-6 ${
+                      exp.type === 'current' ? 'from-surface-50 to-surface-100 dark:from-surface-900/20 dark:to-surface-800/20' :
                       exp.type === 'freelance' ? 'from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20' :
-                      'from-surface-50 to-surface-100'
-                    } rounded-xl border border-border-200 dark:border-border-600 mb-6`}>
+                      'from-surface-50 to-surface-100 dark:from-surface-900/20 dark:to-surface-800/20'
+                    }`}>
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div className="flex items-start gap-4">
                           <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                             exp.type === 'current' ? 'bg-accent-400 text-white' :
                             exp.type === 'freelance' ? 'bg-primary-400 text-white' :
-                            'bg-surface-200 text-surface-800'
+                            'bg-surface-200 dark:bg-surface-700 text-surface-800 dark:text-surface-200'
                           }`}>
                             <Briefcase className="w-6 h-6" />
                           </div>

@@ -6,7 +6,10 @@ const About = () => {
   const { isDark } = useTheme();
 
   return (
-    <section id="about" className="py-16 px-8 bg-background-light dark:bg-background-dark">
+    <section id="about" className="py-16 px-8" 
+             style={{
+               backgroundColor: isDark ? '#0F1110' : '#F8F6F2'
+             }}>
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -15,10 +18,16 @@ const About = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-playfair font-bold text-heading mb-4">
+          <h2 className="text-4xl md:text-5xl font-playfair font-bold mb-4"
+              style={{
+                color: isDark ? '#F5F5F5' : '#1A1A1A'
+              }}>
             About Me
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-accent-400 to-accent-500 mx-auto rounded-full" />
+          <div className="w-24 h-1 mx-auto rounded-full" 
+               style={{
+                 background: 'linear-gradient(to right, #C6A969, #C6A969)'
+               }} />
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -31,13 +40,18 @@ const About = () => {
             className="order-2 lg:order-1 flex justify-center"
           >
             <div className="relative group">
-              {/* Glass Effect Container */}
-              <div className="glass-surface p-4 rounded-2xl">
+              {/* Image Container */}
+              <div className="p-4 rounded-2xl" 
+                   style={{
+                     backgroundColor: isDark ? '#1A1D1B' : '#FFFFFF',
+                     border: `1px solid ${isDark ? '#2A2A2A' : '#E5E5E5'}`,
+                     boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.1)'
+                   }}>
                 {/* Portrait Image */}
                 <img
                   src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80"
                   alt="Arun Kumar - Interior Designer"
-                  className="rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 transition-transform duration-500 hover:scale-105 max-h-[500px] w-auto object-cover"
+                  className="rounded-2xl transition-transform duration-500 hover:scale-105 max-h-[500px] w-auto object-cover"
                 />
                 
                 {/* Subtle Overlay Gradient */}
@@ -49,7 +63,11 @@ const About = () => {
                 initial={{ scale: 0 }}
                 whileInView={{ scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
-                className="absolute -bottom-2 -right-2 bg-accent-400 text-white rounded-2xl p-4 shadow-xl"
+                className="absolute -bottom-2 -right-2 rounded-2xl p-4 shadow-xl"
+                style={{
+                  backgroundColor: '#C6A969',
+                  color: '#FFFFFF'
+                }}
               >
                 <div className="text-center">
                   <div className="text-2xl font-bold">2+</div>
@@ -85,22 +103,50 @@ const About = () => {
             viewport={{ once: true }}
             className="order-1 lg:order-2 flex items-center"
           >
-            <div className="glass-card p-6 rounded-xl border border-gray-200 dark:border-gray-700 shadow-md max-w-lg">
-              <h3 className="text-2xl font-playfair font-semibold text-heading mb-4">
+            <div className="p-6 rounded-xl max-w-lg" 
+                 style={{
+                   backgroundColor: isDark ? '#1A1D1B' : '#FFFFFF',
+                   border: `1px solid ${isDark ? '#2A2A2A' : '#E5E5E5'}`,
+                   boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.1)'
+                 }}>
+              <h3 className="text-2xl font-playfair font-semibold mb-4"
+                  style={{
+                    color: isDark ? '#F5F5F5' : '#1A1A1A'
+                  }}>
                 Arun Kumar
               </h3>
               
-              <div className="space-y-4 text-body leading-relaxed">
-                <p className="text-base">
-                  My name is Arun Kumar, skilled and creative interior designer with a passion for transforming spaces into functional and aesthetically pleasing environments.
+              <div className="max-w-lg space-y-4">
+                <p className="text-base leading-relaxed" 
+                   style={{ 
+                     lineHeight: '1.7',
+                     color: isDark ? '#A0A0A0' : '#6B6B6B'
+                   }}>
+                  My name is Arun Kumar, a passionate and creative interior designer dedicated to transforming spaces into functional and aesthetically pleasing environments. I believe that every space has the potential to tell a story, and my goal is to bring that story to life through thoughtful and innovative design.
                 </p>
                 
-                <p className="text-base">
-                  I'm passionate about finding the true potential of each and every space. My goal is to explore more and further experience in interior design.
+                <p className="text-base leading-relaxed" 
+                   style={{ 
+                     lineHeight: '1.7',
+                     color: isDark ? '#A0A0A0' : '#6B6B6B'
+                   }}>
+                  I specialize in creating modern, elegant, and practical interiors that balance beauty with functionality. With hands-on experience in tools like AutoCAD, SketchUp, and 3ds Max, I focus on delivering designs that are both visually appealing and technically sound.
                 </p>
                 
-                <p className="text-base">
-                  With a keen eye for detail and a deep understanding of design principles, I bring visions to life through thoughtful space planning and innovative solutions.
+                <p className="text-base leading-relaxed" 
+                   style={{ 
+                     lineHeight: '1.7',
+                     color: isDark ? '#A0A0A0' : '#6B6B6B'
+                   }}>
+                  My approach is client-focused, ensuring that each project reflects the personality, needs, and lifestyle of the people who use the space. I pay close attention to details, materials, lighting, and spatial planning to create harmonious and comfortable environments.
+                </p>
+                
+                <p className="text-base leading-relaxed" 
+                   style={{ 
+                     lineHeight: '1.7',
+                     color: isDark ? '#A0A0A0' : '#6B6B6B'
+                   }}>
+                  I am continuously learning and exploring new trends, materials, and sustainable design practices to enhance my skills and deliver better solutions. My aim is to grow as a professional designer and contribute to creating meaningful and inspiring spaces.
                 </p>
               </div>
 
@@ -118,10 +164,19 @@ const About = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.6 + index * 0.1 }}
                     viewport={{ once: true }}
-                    className="flex items-center space-x-2 p-2 rounded-lg hover:bg-accent-50 dark:hover:bg-accent-900/20 transition-all duration-300"
+                    className="flex items-center space-x-2 p-2 rounded-lg transition-all duration-300"
+                    style={{
+                      backgroundColor: isDark ? 'rgba(198, 169, 105, 0.1)' : 'rgba(198, 169, 105, 0.05)'
+                    }}
                   >
-                    <div className="w-1.5 h-1.5 bg-accent-400 rounded-full animate-pulse" />
-                    <span className="text-sm font-medium">{attribute.title}</span>
+                    <div className="w-1.5 h-1.5 rounded-full animate-pulse" 
+                         style={{
+                           backgroundColor: '#C6A969'
+                         }} />
+                    <span className="text-sm font-medium"
+                          style={{
+                            color: isDark ? '#F5F5F5' : '#1A1A1A'
+                          }}>{attribute.title}</span>
                   </motion.div>
                 ))}
               </div>
@@ -132,12 +187,25 @@ const About = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.8 }}
                 viewport={{ once: true }}
-                className="mt-6 pt-4 border-t border-border-200 dark:border-border-600"
+                className="mt-6 pt-4"
+                style={{
+                  borderTop: `1px solid ${isDark ? '#2A2A2A' : '#E5E5E5'}`
+                }}
               >
                 <motion.button
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className="btn-primary w-full text-sm"
+                  className="w-full text-sm px-6 py-3 rounded-full font-semibold transition-all duration-300"
+                  style={{
+                    backgroundColor: '#2F3E34',
+                    color: '#FFFFFF'
+                  }}
+                  onHoverStart={(e) => {
+                    e.currentTarget.style.backgroundColor = '#C6A969';
+                  }}
+                  onHoverEnd={(e) => {
+                    e.currentTarget.style.backgroundColor = '#2F3E34';
+                  }}
                   onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}
                 >
                   View My Portfolio
