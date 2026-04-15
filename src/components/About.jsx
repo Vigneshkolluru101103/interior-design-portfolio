@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from '../contexts/ThemeContext';
+import arunkumarImage from '../images/arunkumar.jpeg';
 
 const About = () => {
   const { isDark } = useTheme();
@@ -49,7 +50,7 @@ const About = () => {
                    }}>
                 {/* Portrait Image */}
                 <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80"
+                  src={arunkumarImage}
                   alt="Arun Kumar - Interior Designer"
                   className="rounded-2xl transition-transform duration-500 hover:scale-105 max-h-[500px] w-auto object-cover"
                 />
@@ -116,37 +117,31 @@ const About = () => {
                 Arun Kumar
               </h3>
               
-              <div className="max-w-lg space-y-4">
-                <p className="text-base leading-relaxed" 
+              <div className="max-w-lg space-y-4" style={{ maxWidth: '520px' }}>
+                <p className="text-base" 
                    style={{ 
-                     lineHeight: '1.7',
-                     color: isDark ? '#A0A0A0' : '#6B6B6B'
+                     textAlign: 'justify',
+                     textJustify: 'inter-word',
+                     lineHeight: '1.8',
+                     wordSpacing: 'normal',
+                     letterSpacing: '0.3px',
+                     color: isDark ? '#A0A0A0' : '#6B6B6B',
+                     marginBottom: '16px'
                    }}>
-                  My name is Arun Kumar, a passionate and creative interior designer dedicated to transforming spaces into functional and aesthetically pleasing environments. I believe that every space has the potential to tell a story, and my goal is to bring that story to life through thoughtful and innovative design.
+                  My name is Arun Kumar, skilled and creative interior designer with a passion for transforming spaces into functional and aesthetically pleasing environments.
                 </p>
                 
-                <p className="text-base leading-relaxed" 
+                <p className="text-base" 
                    style={{ 
-                     lineHeight: '1.7',
-                     color: isDark ? '#A0A0A0' : '#6B6B6B'
+                     textAlign: 'justify',
+                     textJustify: 'inter-word',
+                     lineHeight: '1.8',
+                     wordSpacing: 'normal',
+                     letterSpacing: '0.3px',
+                     color: isDark ? '#A0A0A0' : '#6B6B6B',
+                     marginBottom: '16px'
                    }}>
-                  I specialize in creating modern, elegant, and practical interiors that balance beauty with functionality. With hands-on experience in tools like AutoCAD, SketchUp, and 3ds Max, I focus on delivering designs that are both visually appealing and technically sound.
-                </p>
-                
-                <p className="text-base leading-relaxed" 
-                   style={{ 
-                     lineHeight: '1.7',
-                     color: isDark ? '#A0A0A0' : '#6B6B6B'
-                   }}>
-                  My approach is client-focused, ensuring that each project reflects the personality, needs, and lifestyle of the people who use the space. I pay close attention to details, materials, lighting, and spatial planning to create harmonious and comfortable environments.
-                </p>
-                
-                <p className="text-base leading-relaxed" 
-                   style={{ 
-                     lineHeight: '1.7',
-                     color: isDark ? '#A0A0A0' : '#6B6B6B'
-                   }}>
-                  I am continuously learning and exploring new trends, materials, and sustainable design practices to enhance my skills and deliver better solutions. My aim is to grow as a professional designer and contribute to creating meaningful and inspiring spaces.
+                  I&apos;m passionate about finding the true potential of each and every space. My goal is to explore more and further experience in interior design.
                 </p>
               </div>
 

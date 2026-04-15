@@ -7,11 +7,16 @@ const Experience = () => {
   const { isDark } = useTheme();
   const experienceData = [
     {
+      company: "Earthen Bund",
+      position: "Interior Design Worked",
+      duration: "DECEMBER 2020 - APRIL 2021",
+      location: "Various Locations",
+      description: "Conducted site survey and assisted in design of planning and design of earthen bund. Documented project progress and assisted in preparing reports for senior engineer.",
       company: "Livspace",
-      position: "Interior Design Consultant",
-      duration: "2023 - Present",
+      position: "Interior Design Worked",
+      duration: "MARCH 2025 - FEBRUARY 2026",
       location: "Hyderabad, India",
-      description: "Lead interior design projects for residential and commercial spaces. Collaborate with clients to create personalized design solutions, manage project timelines, and coordinate with contractors and suppliers.",
+      description: "Interior Design Worked Livspace and acquired knowledge about residential modulars of interiors.",
       responsibilities: [
         "Space planning and 3D visualization",
         "Material selection and procurement",
@@ -22,10 +27,10 @@ const Experience = () => {
     },
     {
       company: "Lavish Homes",
-      position: "Junior Interior Designer",
-      duration: "2022 - 2023",
+      position: "Interior Design Worked",
+      duration: "NOVEMBER 2024 - JANUARY 2025",
       location: "Bangalore, India",
-      description: "Assisted senior designers in creating luxury residential interiors. Developed design concepts, created detailed drawings, and supported project execution from concept to completion.",
+      description: "Interior Design Worked in Lavish Homes for 3 months and acquired knowledge about Interiors.",
       responsibilities: [
         "AutoCAD drafting and technical drawings",
         "3D modeling and rendering",
@@ -35,18 +40,46 @@ const Experience = () => {
       type: "past"
     },
     {
-      company: "Freelance Projects",
-      position: "Interior Designer",
-      duration: "2021 - 2022",
+      company: "Surveying and Layout",
+      position: "Interior Design Worked",
+      duration: "MAY 2023 - JULY 2023",
       location: "Various Locations",
-      description: "Independent interior design consultant for residential projects. Provided end-to-end design services including space planning, material selection, and project coordination.",
+      description: "Assisted in surveying and layout of canal and pipe line route. Documented project progress and assisted in preparing reports for senior engineer.",
+      responsibilities: [
+        "Surveying and mapping",
+        "Route planning",
+        "Project documentation",
+        "Progress reporting"
+      ],
+      type: "past"
+    },
+    {
+      company: "Irrigation Department",
+      position: "Interior Design Worked",
+      duration: "AUGUST 2022 - SEPTEMBER 2022",
+      location: "Various Locations",
+      description: "Studied structural designs and layouts for check dams, ensuring their structural integrity and functionality.",
+      responsibilities: [
+        "Structural analysis",
+        "Design documentation",
+        "Site inspection",
+        "Technical reporting"
+      ],
+      type: "past"
+    },
+    {
+      company: "Earthen Bund",
+      position: "Interior Design Worked",
+      duration: "DECEMBER 2020 - APRIL 2021",
+      location: "Various Locations",
+      description: "Conducted site survey and assisted in design of planning and design of earthen bund. Documented project progress and assisted in preparing reports for senior engineer.",
       responsibilities: [
         "Client requirement analysis",
         "Design concept development",
         "Budget management and procurement",
         "Site survey and measurement"
       ],
-      type: "freelance"
+      type: "past"
     }
   ];
 

@@ -8,28 +8,22 @@ const Skills = () => {
 
   const skillsData = [
     {
-      name: 'AutoCAD',
+      name: '3DS-MAX',
       level: 95,
       icon: <Palette className="w-6 h-6" />,
       color: 'bg-accent-400'
     },
     {
-      name: 'SketchUp',
+      name: 'AUTO CAD',
       level: 90,
       icon: <Camera className="w-6 h-6" />,
       color: 'bg-primary-400'
     },
     {
-      name: '3ds Max',
-      level: 85,
-      icon: <FileText className="w-6 h-6" />,
-      color: 'bg-accent-500'
-    },
-    {
       name: 'V-Ray',
       level: 88,
       icon: <Zap className="w-6 h-6" />,
-      color: 'bg-primary-500'
+      color: 'bg-accent-500'
     },
     {
       name: 'Photoshop',
@@ -38,24 +32,30 @@ const Skills = () => {
       color: 'bg-accent-600'
     },
     {
-      name: 'Enscape',
+      name: 'Word, Excel, PPT',
+      level: 85,
+      icon: <FileText className="w-6 h-6" />,
+      color: 'bg-primary-500'
+    },
+    {
+      name: 'SketchUp',
       level: 87,
       icon: <Camera className="w-6 h-6" />,
       color: 'bg-primary-600'
     },
     {
-      name: 'Space Planning',
-      level: 96,
-      icon: <FileText className="w-6 h-6" />,
+      name: 'Enscape',
+      level: 90,
+      icon: <Palette className="w-6 h-6" />,
       color: 'bg-accent-300'
     },
     {
-      name: 'Material Selection',
-      level: 94,
-      icon: <Zap className="w-6 h-6" />,
-      color: 'bg-primary-300'
-    }
-  ];
+      name: 'Canva',
+      level: 88,
+      icon: <FileText className="w-6 h-6" />,
+      color: 'bg-primary-600'
+    },
+      ];
 
   return (
     <section id="skills" className="py-20 section-primary">

@@ -6,35 +6,36 @@ import { useTheme } from '../contexts/ThemeContext';
 const Education = () => {
   const { isDark } = useTheme();
   const educationData = [
+    
     {
       year: "2024",
-      title: "BTech in Computer Science",
-      institution: "JNTU University",
-      description: "Bachelor of Technology with specialization in Computer Science and Engineering",
+      title: "INTERIOR DESIGN",
+      institution: "AESTHETIC OF INTERIORS ACADEMY",
+      description: "Professional certification with 8.9 CGPA",
       icon: <GraduationCap className="w-6 h-6" />,
       type: "degree"
     },
     {
       year: "2024",
-      title: "Interior Design Certification",
-      institution: "Design Institute",
-      description: "Professional certification in Interior Design and Space Planning",
-      icon: <Award className="w-6 h-6" />,
-      type: "certification"
+      title: "BTECH",
+      institution: "SIDDHARTH INSTITUTE OF ENGINEERING AND TECHNOLOGY",
+      description: "Bachelor of Technology with 8.77 CGPA",
+      icon: <GraduationCap className="w-6 h-6" />,
+      type: "degree"
     },
     {
       year: "2021",
-      title: "Diploma in Interior Design",
-      institution: "Technical College",
-      description: "Comprehensive diploma covering design principles, materials, and project management",
-      icon: <Award className="w-6 h-6" />,
+      title: "DIPLOMA",
+      institution: "SREE VIDYANIKETHAN ENGINEERING COLLEGE",
+      description: "Diploma in engineering with 72.55% aggregate",
+      icon: <GraduationCap className="w-6 h-6" />,
       type: "diploma"
     },
     {
       year: "2018",
-      title: "SSC (10th Grade)",
-      institution: "High School",
-      description: "Secondary School Certificate with distinction in Arts and Mathematics",
+      title: "SSC",
+      institution: "MOTHER ACADEMY HIGH SCHOOL",
+      description: "Secondary School Certificate with 8.5 CGPA",
       icon: <GraduationCap className="w-6 h-6" />,
       type: "school"
     }
