@@ -172,6 +172,70 @@ const Portfolio = () => {
               description: 'High-end walk-in closet with custom organization and premium finishes',
               materials: 'Custom shelving, shoe storage, vanity area, LED lighting',
               details: 'A luxury walk-in closet featuring custom shelving systems, specialized shoe storage, vanity area, and integrated LED lighting.'
+            },
+            // AutoCAD Works Projects
+            {
+              id: 30,
+              title: 'L Shape Kitchen Design',
+              category: 'autocad',
+              image: '/projects/Auto CADWORKS/L shape.png',
+              description: 'Professional L-shaped kitchen layout with optimal workflow and modern design',
+              materials: 'L-shaped layout, modern cabinetry, countertop design, ergonomic workflow',
+              details: 'A comprehensive L-shaped kitchen design featuring modern cabinetry, efficient countertop layout, and ergonomic workflow optimization for professional cooking spaces.'
+            },
+            {
+              id: 31,
+              title: 'Corridor Kitchen Layout',
+              category: 'autocad',
+              image: '/projects/Auto CADWORKS/corridor kitchen.png',
+              description: 'Efficient corridor-style kitchen design with space optimization',
+              materials: 'Corridor layout, space optimization, linear design, efficient storage',
+              details: 'A space-efficient corridor kitchen design with linear layout, optimized storage solutions, and modern fixtures for compact living spaces.'
+            },
+            {
+              id: 32,
+              title: 'Furniture Layout Design',
+              category: 'autocad',
+              image: '/projects/Auto CADWORKS/furniture.png',
+              description: 'Professional furniture arrangement and space planning solution',
+              materials: 'Furniture layout, space planning, ergonomic design, modern arrangement',
+              details: 'A detailed furniture layout design showcasing optimal space planning with ergonomic arrangements and modern furniture positioning for comfortable living.'
+            },
+            {
+              id: 33,
+              title: 'Island Kitchen Design',
+              category: 'autocad',
+              image: '/projects/Auto CADWORKS/island kitchen.png',
+              description: 'Modern kitchen with central island and premium features',
+              materials: 'Central island, modern cabinetry, premium appliances, spacious design',
+              details: 'A modern kitchen design featuring a central island for additional workspace, premium cabinetry, and spacious layout for entertaining.'
+            },
+            {
+              id: 34,
+              title: 'Residential 1BHK Layout',
+              category: 'autocad',
+              image: '/projects/Auto CADWORKS/residential 1bhk.png',
+              description: 'Optimized 1BHK residential floor plan with efficient space utilization',
+              materials: '1BHK layout, space optimization, residential design, efficient planning',
+              details: 'A comprehensive 1BHK residential layout featuring optimized space utilization, efficient room division, and modern living standards.'
+            },
+            {
+              id: 35,
+              title: 'Single Wall Kitchen Design',
+              category: 'autocad',
+              image: '/projects/Auto CADWORKS/single wall kitchen.png',
+              description: 'Compact single-wall kitchen design for small spaces',
+              materials: 'Single wall layout, compact design, space efficiency, modern fixtures',
+              details: 'A space-efficient single-wall kitchen design perfect for small spaces, featuring modern fixtures and optimal storage solutions.'
+            },
+            {
+              id: 36,
+              title: 'Space Planning Solution',
+              category: 'autocad',
+              image: '/projects/Auto CADWORKS/space planning.png',
+              description: 'Professional space planning and layout optimization',
+              materials: 'Space planning, layout optimization, professional design, efficient utilization',
+              details: 'A comprehensive space planning solution showcasing professional layout optimization and efficient space utilization for modern residential design.'
             }
           ]);
   }, []);
@@ -323,7 +387,7 @@ const Portfolio = () => {
                   </motion.button>
 
                   {/* Image */}
-                  <div className="relative h-96 overflow-hidden rounded-t-2xl">
+                  <div className="relative h-96 md:h-[500px] overflow-hidden rounded-t-2xl">
                     <img
                       src={selectedProject.image}
                       alt={selectedProject.title}

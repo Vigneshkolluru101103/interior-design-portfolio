@@ -296,32 +296,7 @@ const Contact = () => {
                 ))}
               </div>
 
-              {/* Consultation Card */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                viewport={{ once: true }}
-                className="glass-card p-8"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <MessageSquare className="w-8 h-8 text-accent-400" />
-                  <h3 className="text-2xl font-playfair font-semibold text-heading">
-                    Free Consultation
-                  </h3>
-                </div>
-                <p className="text-body leading-relaxed mb-6">
-                  Schedule a complimentary 30-minute consultation to discuss your project requirements and explore how we can work together to create your perfect space.
-                </p>
-                <motion.button
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="btn-secondary w-full"
-                >
-                  Book Consultation
-                </motion.button>
-              </motion.div>
-
+              
                           </motion.div>
           </div>
         </div>
