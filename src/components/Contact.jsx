@@ -179,7 +179,7 @@ const Contact = () => {
                         onChange={handleChange}
                         required
                         className="form-input"
-                        placeholder="John Doe"
+                        placeholder="Enter your name"
                       />
                     </div>
                     
@@ -195,7 +195,7 @@ const Contact = () => {
                         onChange={handleChange}
                         required
                         className="form-input"
-                        placeholder="john@example.com"
+                        placeholder="Enter your email"
                       />
                     </div>
                   </div>
@@ -212,7 +212,7 @@ const Contact = () => {
                         value={formData.phone}
                         onChange={handleChange}
                         className="form-input"
-                        placeholder="+91 98765 43210"
+                        placeholder="Enter your phone number"
                       />
                     </div>
                     
@@ -322,29 +322,7 @@ const Contact = () => {
                 </motion.button>
               </motion.div>
 
-              {/* Social Links */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.8 }}
-                viewport={{ once: true }}
-                className="text-center"
-              >
-                <h4 className="text-lg font-semibold text-heading mb-4">Connect With Me</h4>
-                <div className="flex justify-center gap-4">
-                  {['Instagram', 'LinkedIn', 'Pinterest', 'WhatsApp'].map((social, index) => (
-                    <motion.button
-                      key={social}
-                      whileHover={{ scale: 1.1, y: -5 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="w-12 h-12 glass-surface rounded-full shadow-md flex items-center justify-center hover:shadow-premium transition-all duration-300"
-                    >
-                      <span className="text-xs font-medium text-accent-400">{social.charAt(0)}</span>
-                    </motion.button>
-                  ))}
-                </div>
-              </motion.div>
-            </motion.div>
+                          </motion.div>
           </div>
         </div>
       </section>

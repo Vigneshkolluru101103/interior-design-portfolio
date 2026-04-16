@@ -1,105 +1,187 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, Filter, X } from 'lucide-react';
+import { Filter, X } from 'lucide-react';
 import Modal from './Modal';
 import { useTheme } from '../contexts/ThemeContext';
 
 const Portfolio = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedProject, setSelectedProject] = useState(null);
+  const [projects, setProjects] = useState([]);
   const { isDark } = useTheme();
+
+  // Load projects directly from uploaded images
+  useEffect(() => {
+    // All uploaded projects from src/projects
+    setProjects([
+            // Bedroom Projects (B1-B6)
+            {
+              id: 1,
+              title: 'Master Bedroom Design B1',
+              category: 'bedroom',
+              image: '/projects/B1.jpg',
+              description: 'Elegant master bedroom featuring custom furniture and sophisticated lighting design',
+              materials: 'Custom furniture, LED lighting, premium materials, silk curtains',
+              details: 'A sophisticated master bedroom designed for comfort and style, featuring custom furniture pieces and carefully selected lighting to create a serene atmosphere.'
+            },
+                                    {
+              id: 4,
+              title: 'Modern Home Office with Integrated Vanity Space',
+              category: 'workspace',
+              image: '/projects/B4.jpg',
+              description: 'A compact and elegant workspace combined with a dressing area, designed for functionality and modern aesthetics',
+              materials: 'Wood finish panels, matte laminate cabinets, fluted wall panels, ambient LED lighting, decorative glass and metal accents',
+              details: 'This design combines a functional home office setup with a stylish vanity area. The floating wooden desk is complemented by overhead storage cabinets and open shelves with warm lighting, creating an organized workspace. Adjacent to it, the vanity section features a mirror, soft lighting, and a compact seating arrangement. The blend of textures, including fluted wall panels and smooth finishes, enhances the modern and sophisticated look.'
+            },
+            {
+              id: 5,
+              title: 'Spacious Bedroom B5',
+              category: 'bedroom',
+              image: '/projects/B5.jpg',
+              description: 'Large bedroom with ample storage and natural lighting',
+              materials: 'Ample storage, natural lighting, modern design, hardwood floors',
+              details: 'An expansive bedroom design maximizing natural light with ample storage solutions and modern hardwood flooring for comfortable living.'
+            },
+            {
+              id: 6,
+              title: 'Contemporary Bedroom B6',
+              category: 'bedroom',
+              image: '/projects/B6.jpg',
+              description: 'Modern bedroom with contemporary design elements',
+              materials: 'Contemporary design, modern materials, smart features, neutral palette',
+              details: 'A modern bedroom showcasing contemporary design elements with smart features and a neutral color palette for sophisticated aesthetics.'
+            },
+            // Kitchen Projects (K1-K8)
+            {
+              id: 7,
+              title: 'Modern Kitchen K1',
+              category: 'kitchen',
+              image: '/projects/K1.jpg',
+              description: 'Functional kitchen with custom cabinetry and premium appliances',
+              materials: 'Custom cabinetry, quartz countertops, stainless steel appliances, tile backsplash',
+              details: 'A professionally designed kitchen featuring custom cabinetry with quartz countertops and high-end stainless steel appliances for modern cooking.'
+            },
+                        {
+              id: 9,
+              title: 'Compact Kitchen K3',
+              category: 'kitchen',
+              image: '/projects/K3.jpg',
+              description: 'Efficient kitchen design for smaller spaces with maximum functionality',
+              materials: 'Space optimization, efficient design, modern appliances, compact storage',
+              details: 'An efficiently designed compact kitchen maximizing functionality in smaller spaces with modern appliances and clever storage solutions.'
+            },
+            {
+              id: 10,
+              title: 'Family Kitchen K4',
+              category: 'kitchen',
+              image: '/projects/K4.jpg',
+              description: 'Family-friendly kitchen with durable materials and practical layout',
+              materials: 'Durable materials, practical layout, family-friendly design, easy maintenance',
+              details: 'A family-friendly kitchen designed with durable materials and practical layout for easy maintenance and everyday family use.'
+            },
+            {
+              id: 11,
+              title: 'Luxury Kitchen K5',
+              category: 'kitchen',
+              image: '/projects/K5.jpg',
+              description: 'High-end kitchen with premium materials and sophisticated design',
+              materials: 'Premium materials, sophisticated design, luxury appliances, custom finishes',
+              details: 'A luxury kitchen featuring premium materials and sophisticated design with high-end appliances and custom finishes for elegant living.'
+            },
+            {
+              id: 12,
+              title: 'Smart Kitchen K6',
+              category: 'kitchen',
+              image: '/projects/K6.jpg',
+              description: 'Modern kitchen with smart home integration and advanced features',
+              materials: 'Smart home integration, advanced features, modern appliances, touch controls',
+              details: 'A cutting-edge smart kitchen with home automation integration and advanced features including touch controls and modern appliances.'
+            },
+            {
+              id: 13,
+              title: 'Traditional Kitchen K7',
+              category: 'kitchen',
+              image: '/projects/K7.jpg',
+              description: 'Classic kitchen design with traditional elements and modern functionality',
+              materials: 'Traditional design, modern functionality, quality materials, classic finishes',
+              details: 'A classic kitchen design combining traditional elements with modern functionality, featuring quality materials and timeless finishes.'
+            },
+            {
+              id: 14,
+              title: 'Industrial Kitchen K8',
+              category: 'kitchen',
+              image: '/projects/K8.jpg',
+              description: 'Industrial-style kitchen perfect for commercial spaces',
+              materials: 'Industrial design, commercial-grade equipment, durable materials, metal finishes',
+              details: 'An industrial-style kitchen with commercial-grade equipment and durable materials, perfect for professional cooking spaces.'
+            },
+            // Living Room Projects (L1-L5)
+            {
+              id: 15,
+              title: 'Contemporary Living Room L1',
+              category: 'living',
+              image: '/projects/L1.jpg',
+              description: 'Modern living space with elegant furniture and sophisticated lighting',
+              materials: 'Modern furniture, sophisticated lighting, premium materials, glass accents',
+              details: 'A contemporary living space featuring elegant furniture and sophisticated lighting design with premium materials and glass accents.'
+            },
+                        {
+              id: 18,
+              title: 'Luxury Living Room L4',
+              category: 'living',
+              image: '/projects/L4.jpg',
+              description: 'High-end living room with premium materials and elegant design',
+              materials: 'Premium materials, elegant design, luxury furniture, marble details',
+              details: 'A luxury living room showcasing premium materials and elegant design with luxury furniture and marble details for sophisticated entertaining.'
+            },
+                                                // Office Projects
+            {
+              id: 22,
+              title: 'Modern Living Room TV Unit with Fluted Panel Design',
+              category: 'living room',
+              image: '/projects/B3.jpg',
+              description: 'A contemporary living room setup featuring a sleek TV unit, fluted wall panels, and integrated display shelving',
+              materials: 'Wood finish panels, fluted wall texture, laminate TV console, open display shelving, decorative accessories',
+              details: 'This modern living room design highlights a stylish TV unit with a wood-finish console and vertically fluted wall panels that add texture and depth. The integrated open shelving unit showcases decorative pieces, books, and sculptures, enhancing the visual appeal. The neutral color palette and clean lines create a balanced, elegant, and clutter-free environment.'
+            },
+            {
+              id: 23,
+              title: 'Executive Office Suite',
+              category: 'living',
+              image: '/projects/L2.jpg',
+              description: 'Professional executive office with premium materials and sophisticated design',
+              materials: 'Mahogany desk, leather chair, custom cabinetry, soundproofing',
+              details: 'An executive office suite featuring mahogany desk, leather seating, custom cabinetry, and soundproofing for professional environment.'
+            },
+                                    // Entry/Foyer Projects
+            {
+              id: 26,
+              title: 'Grand Entry Foyer',
+              category: 'living',
+              image: '/projects/L5.jpg',
+              description: 'Impressive entryway with stunning first impression and elegant design',
+              materials: 'Marble flooring, grand staircase, custom lighting, mirror accents',
+              details: 'A grand entry foyer with marble flooring, impressive staircase, custom lighting design, and elegant mirror accents.'
+            },
+                                    // Walk-in Closet Projects
+            {
+              id: 29,
+              title: 'Luxury Walk-in Closet',
+              category: 'bedroom',
+              image: '/projects/B4.jpg',
+              description: 'High-end walk-in closet with custom organization and premium finishes',
+              materials: 'Custom shelving, shoe storage, vanity area, LED lighting',
+              details: 'A luxury walk-in closet featuring custom shelving systems, specialized shoe storage, vanity area, and integrated LED lighting.'
+            }
+          ]);
+  }, []);
 
   const categories = [
     { id: 'all', name: 'All Projects' },
     { id: 'living', name: 'Living Room' },
     { id: 'bedroom', name: 'Bedroom' },
     { id: 'kitchen', name: 'Kitchen' },
-    { id: '3d', name: '3D Designs' },
     { id: 'autocad', name: 'AutoCAD Works' }
-  ];
-
-  const projects = [
-    {
-      id: 1,
-      title: 'Modern Living Space',
-      category: 'living',
-      image: 'https://images.unsplash.com/photo-1540518614846-7edd4a6667d7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-      description: 'Contemporary living room with minimalist aesthetics and warm lighting',
-      materials: 'Teak wood flooring, gypsum ceiling, marble finish, LED lighting',
-      details: 'This modern living space features clean lines and a neutral color palette with teak wood flooring and a sophisticated gypsum ceiling design. The marble finish adds luxury while strategic LED lighting creates ambiance.'
-    },
-    {
-      id: 2,
-      title: 'Luxury Master Bedroom',
-      category: 'bedroom',
-      image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-      description: 'Elegant master bedroom with premium materials and soft lighting',
-      materials: 'Oak wood paneling, velvet upholstery, brass fixtures, silk curtains',
-      details: 'A luxurious retreat featuring oak wood paneling and premium velvet upholstery. The brass fixtures and silk curtains create an atmosphere of sophistication and comfort.'
-    },
-    {
-      id: 3,
-      title: 'Gourmet Kitchen Design',
-      category: 'kitchen',
-      image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-      description: 'Modern kitchen with smart storage and high-end appliances',
-      materials: 'Granite countertops, custom cabinetry, stainless steel appliances',
-      details: 'A chef\'s dream kitchen featuring granite countertops and custom cabinetry with smart storage solutions. High-end stainless steel appliances complete this functional yet elegant space.'
-    },
-    {
-      id: 4,
-      title: '3D Living Room Visualization',
-      category: '3d',
-      image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-      description: 'Photorealistic 3D rendering of contemporary living space',
-      materials: '3D modeling in SketchUp, rendering in V-Ray, post-production in Photoshop',
-      details: 'High-quality 3D visualization created using SketchUp for modeling and V-Ray for photorealistic rendering. Post-production in Photoshop enhances the final presentation.'
-    },
-    {
-      id: 5,
-      title: 'Technical Floor Plans',
-      category: 'autocad',
-      image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-      description: 'Detailed architectural drawings and technical specifications',
-      materials: 'AutoCAD 2D drawings, technical specifications, material schedules',
-      details: 'Comprehensive technical documentation including detailed floor plans, elevations, and material schedules created with precision in AutoCAD.'
-    },
-    {
-      id: 6,
-      title: 'Cozy Bedroom Retreat',
-      category: 'bedroom',
-      image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-      description: 'Intimate bedroom design with warm colors and soft textures',
-      materials: 'Pine wood furniture, cotton linen, warm LED lighting, wool rugs',
-      details: 'An intimate and cozy bedroom featuring pine wood furniture and natural cotton linen. Warm LED lighting and wool rugs create a comfortable retreat.'
-    },
-    {
-      id: 7,
-      title: 'Open Concept Living',
-      category: 'living',
-      image: 'https://images.unsplash.com/photo-1600607687942-ce8a6c25118c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-      description: 'Spacious open-concept living and dining area',
-      materials: 'Hardwood floors, floor-to-ceiling windows, minimalist furniture',
-      details: 'An expansive open-concept space with hardwood floors and floor-to-ceiling windows that flood the area with natural light. Minimalist furniture maintains the clean aesthetic.'
-    },
-    {
-      id: 8,
-      title: '3D Kitchen Render',
-      category: '3d',
-      image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-      description: 'Realistic 3D kitchen visualization with lighting effects',
-      materials: '3ds Max modeling, V-Ray rendering, realistic lighting simulation',
-      details: 'Advanced 3D visualization using 3ds Max for modeling and V-Ray for realistic lighting and material rendering. Perfect for client presentations.'
-    },
-    {
-      id: 9,
-      title: 'AutoCAD Interior Details',
-      category: 'autocad',
-      image: 'https://images.unsplash.com/photo-1554118808-8bf76c1f7574?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-      description: 'Detailed interior construction drawings',
-      materials: 'Technical drawings, dimensioning, material specifications',
-      details: 'Precise technical drawings with detailed construction information, proper dimensioning, and comprehensive material specifications for contractors.'
-    }
   ];
 
   const filteredProjects = selectedCategory === 'all' 
@@ -174,11 +256,15 @@ const Portfolio = () => {
                     <img
                       src={project.image}
                       alt={project.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 cursor-pointer"
+                      onClick={() => setSelectedProject(project)}
                     />
                     
                     {/* Premium Overlay */}
-                    <div className="portfolio-overlay">
+                    <div 
+                      className="portfolio-overlay cursor-pointer"
+                      onClick={() => setSelectedProject(project)}
+                    >
                       <div className="text-white">
                         <h3 className="text-xl font-playfair font-semibold mb-2">
                           {project.title}
@@ -190,15 +276,7 @@ const Portfolio = () => {
                     </div>
                     
                     {/* Quick View Button */}
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => setSelectedProject(project)}
-                      className="absolute top-4 right-4 w-12 h-12 glass-surface rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-premium"
-                    >
-                      <Eye className="w-5 h-5 text-accent-400" />
-                    </motion.button>
-                  </div>
+                                      </div>
 
                   {/* Content */}
                   <div className="p-6">
@@ -213,12 +291,12 @@ const Portfolio = () => {
                         {categories.find(cat => cat.id === project.category)?.name}
                       </span>
                       <motion.button
-                        whileHover={{ x: 5 }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => setSelectedProject(project)}
-                        className="text-accent-400 hover:text-accent-500 font-medium text-sm flex items-center gap-1"
+                        className="text-accent-400 hover:text-accent-500 font-medium text-sm"
                       >
                         View Details
-                        <Eye className="w-4 h-4" />
                       </motion.button>
                     </div>
                   </div>
@@ -293,14 +371,7 @@ const Portfolio = () => {
                         Request Similar Design
                       </motion.button>
                       
-                      <motion.button
-                        whileHover={{ scale: 1.05, y: -2 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="btn-secondary"
-                      >
-                        Download Portfolio
-                      </motion.button>
-                    </div>
+                                          </div>
                   </div>
                 </div>
               </div>

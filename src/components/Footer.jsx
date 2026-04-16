@@ -11,7 +11,7 @@ const Footer = () => {
     { icon: <Instagram className="w-5 h-5" />, href: 'https://www.instagram.com/arun_kumar_____shiva/', label: 'Instagram' },
     { icon: <Linkedin className="w-5 h-5" />, href: 'https://www.linkedin.com/in/kolluru-arun-kumar-naidu-a938a1264/', label: 'LinkedIn' },
     { icon: <Facebook className="w-5 h-5" />, href: 'https://www.facebook.com/profile.php?id=100029801657042', label: 'Facebook' },
-    { icon: <Mail className="w-5 h-5" />, href: 'mailto:arunkumarkolluru0@gmail.com', label: 'Email' }
+    { icon: <Mail className="w-5 h-5" />, onClick: () => window.location.href = 'mailto:arunkumarkolluru0@gmail.com', label: 'Email' }
   ];
 
   const quickLinks = [
