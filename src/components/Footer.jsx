@@ -8,10 +8,10 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
   
   const socialLinks = [
-    { icon: <Instagram className="w-5 h-5" />, href: '#', label: 'Instagram' },
-    { icon: <Linkedin className="w-5 h-5" />, href: '#', label: 'LinkedIn' },
-    { icon: <Facebook className="w-5 h-5" />, href: '#', label: 'Facebook' },
-    { icon: <Twitter className="w-5 h-5" />, href: '#', label: 'Twitter' }
+    { icon: <Instagram className="w-5 h-5" />, href: 'https://www.instagram.com/arun_kumar_____shiva/', label: 'Instagram' },
+    { icon: <Linkedin className="w-5 h-5" />, href: 'https://www.linkedin.com/in/kolluru-arun-kumar-naidu-a938a1264/', label: 'LinkedIn' },
+    { icon: <Facebook className="w-5 h-5" />, href: 'https://www.facebook.com/profile.php?id=100029801657042', label: 'Facebook' },
+    { icon: <Mail className="w-5 h-5" />, href: 'mailto:arunkumarkolluru0@gmail.com', label: 'Email' }
   ];
 
   const quickLinks = [
@@ -26,8 +26,7 @@ const Footer = () => {
     'Space Planning',
     '3D Visualization',
     'AutoCAD Drafting',
-    'Material Selection',
-    'Project Management'
+  
   ];
 
   return (
@@ -54,6 +53,8 @@ const Footer = () => {
                 <motion.a
                   key={index}
                   href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={social.label}
                   whileHover={{ scale: 1.1, y: -3 }}
                   whileTap={{ scale: 0.9 }}
@@ -116,15 +117,15 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-accent-400 flex-shrink-0" />
-                <span className="text-text-400 text-sm">arun.kumar@example.com</span>
+                <span className="text-text-400 text-sm">arunkumarkolluru0@gmail.com</span>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-accent-400 flex-shrink-0" />
-                <span className="text-text-400 text-sm">+91 98765 43210</span>
+                <span className="text-text-400 text-sm">+91 6305002566</span>
               </div>
               <div className="flex items-center gap-3">
                 <MapPin className="w-5 h-5 text-accent-400 flex-shrink-0" />
-                <span className="text-text-400 text-sm">Hyderabad, India</span>
+                <span className="text-text-400 text-sm">Banglore, Karnataka, India</span>
               </div>
             </div>
           </motion.div>
