@@ -4,6 +4,39 @@ import { useTheme } from '../contexts/ThemeContext';
 import { Mail, Lock, Eye, EyeOff, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+// Toast notification function
+const showToast = (message, type = 'success', duration = 3000) => {
+  // Remove existing toasts
+  const existingToast = document.querySelector('.toast');
+  if (existingToast) {
+    existingToast.remove();
+  }
+
+  // Create toast container if it doesn't exist
+  let toastContainer = document.querySelector('.toast-container');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.className = 'toast-container';
+    document.body.appendChild(toastContainer);
+  }
+
+  // Create toast element
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+
+  // Add to container
+  toastContainer.appendChild(toast);
+
+  // Auto remove after duration
+  setTimeout(() => {
+    toast.classList.add('hiding');
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, duration);
+};
+
 const AdminLogin = () => {
   const { isDark } = useTheme();
   const navigate = useNavigate();
@@ -26,8 +59,13 @@ const AdminLogin = () => {
       localStorage.setItem('isAdminLoggedIn', 'true');
       localStorage.setItem('adminLoginTime', new Date().toISOString());
       
+      // Show success message
+      showToast('Login successful! Welcome to admin dashboard.', 'success', 3000);
+      
       // Redirect to admin dashboard
-      navigate('/admin/dashboard');
+      setTimeout(() => {
+        navigate('/admin/dashboard');
+      }, 500);
     } else {
       setError('Invalid email or password. Please try again.');
     }
@@ -170,20 +208,7 @@ const AdminLogin = () => {
               </button>
             </motion.div>
           </form>
-  {/* Demo Credentials */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-6 p-4 bg-accent-50 dark:bg-accent-900/20 rounded-lg border border-accent-200 dark:border-accent-800"
-          >
-            <p className="text-sm text-accent-600 dark:text-accent-400 text-center">
-              <strong>Login Credentials:</strong><br />
-              Email: your-email@example.com<br />
-              Password: your-secure-password
-            </p>
-          </motion.div>
-        </div>
+          </div>
       </motion.div>
     </div>
   );

@@ -57,19 +57,19 @@ const Contact = () => {
     {
       icon: <Mail className="w-6 h-6" />,
       label: 'Email',
-      value: 'arun.kumar@example.com',
-      href: 'mailto:arun.kumar@example.com'
+      value: 'arunkumarkolluru0@gmail.com',
+      href: 'mailto:arunkumarkolluru0@gmail.com'
     },
     {
       icon: <Phone className="w-6 h-6" />,
       label: 'Phone',
-      value: '+91 98765 43210',
-      href: 'tel:+919876543210'
+      value: '+91 6305002566',
+      href: 'tel:+916305002566'
     },
     {
       icon: <MapPin className="w-6 h-6" />,
       label: 'Location',
-      value: 'Hyderabad, India',
+      value: 'Banglore,Karnataka,India',
       href: '#'
     }
   ];

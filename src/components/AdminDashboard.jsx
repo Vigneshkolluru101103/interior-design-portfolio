@@ -157,10 +157,44 @@ const AdminDashboard = () => {
     });
   };
 
+  // Toast notification function
+  const showToast = (message, type = 'success', duration = 3000) => {
+    // Remove existing toasts
+    const existingToast = document.querySelector('.toast');
+    if (existingToast) {
+      existingToast.remove();
+    }
+
+    // Create toast container if it doesn't exist
+    let toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.className = 'toast-container';
+      document.body.appendChild(toastContainer);
+    }
+
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+
+    // Add to container
+    toastContainer.appendChild(toast);
+
+    // Auto remove after duration
+    setTimeout(() => {
+      toast.classList.add('hiding');
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }, duration);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('isAdminLoggedIn');
     localStorage.removeItem('adminLoginTime');
-    navigate('/admin/login');
+    showToast('Successfully logged out!', 'warning', 3000);
+    navigate('/');
   };
 
   const handleAddProject = () => {
