@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, MessageSquare, Download } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useFirebase } from '../contexts/FirebaseContext';
+import { validateContactData, sanitizeContactData } from '../utils/validation';
 
 const Contact = () => {
   const { isDark } = useTheme();
@@ -35,9 +36,21 @@ const Contact = () => {
     setIsSubmitting(true);
     setSubmitStatus('');
     
+    // Validate form data
+    const validation = validateContactData(formData);
+    if (!validation.isValid) {
+      setSubmitStatus('error');
+      setSubmitMessage('Please fix the following errors:\n' + validation.errors.join('\n'));
+      setIsSubmitting(false);
+      return;
+    }
+    
+    // Sanitize form data
+    const sanitizedData = sanitizeContactData(formData);
+    
     try {
       // Submit contact form to Firebase
-      await submitContactForm(formData);
+      await submitContactForm(sanitizedData);
       
       // Show success message
       setSubmitStatus('success');

@@ -139,18 +139,10 @@ const Footer = () => {
           viewport={{ once: true }}
           className="mt-12 pt-8 border-t border-border-700"
         >
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex justify-center items-center gap-4">
             <p className="text-text-400 text-sm">
               © {currentYear} Kolluru Arun Kumar. All rights reserved.
             </p>
-            <div className="flex space-x-6 text-sm">
-              <a href="#" className="text-text-400 hover:text-accent-400 transition-colors duration-300">
-                Privacy Policy
-              </a>
-              <a href="#" className="text-text-400 hover:text-accent-400 transition-colors duration-300">
-                Terms of Service
-              </a>
-            </div>
           </div>
         </motion.div>
       </div>

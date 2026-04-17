@@ -18,6 +18,7 @@ import {
   query, 
   where,
   orderBy,
+  onSnapshot,
   limit 
 } from 'firebase/firestore';
 import { 
@@ -89,20 +90,11 @@ export const FirebaseProvider = ({ children }) => {
   // Firestore functions
   const createDocument = async (collectionName, documentId, data) => {
     try {
-      console.log('=== CREATE DOCUMENT ===');
-      console.log('Collection:', collectionName);
-      console.log('Document ID:', documentId);
-      console.log('Data to save:', data);
       setError(null);
       const docRef = doc(db, collectionName, documentId);
-      console.log('Document reference created:', docRef);
       await setDoc(docRef, data);
-      console.log('Document successfully written to Firebase');
       return true;
     } catch (err) {
-      console.error('=== CREATE DOCUMENT ERROR ===');
-      console.error('Error creating document:', err);
-      console.error('Error details:', err.message);
       setError(err.message);
       throw err;
     }
@@ -186,18 +178,10 @@ export const FirebaseProvider = ({ children }) => {
   // Portfolio specific functions
   const addProject = async (projectData) => {
     try {
-      console.log('=== ADD PROJECT TO FIREBASE ===');
-      console.log('Project data received:', projectData);
       const projectId = `project_${Date.now()}`;
-      console.log('Generated project ID:', projectId);
-      console.log('Calling createDocument with collection: projects, id:', projectId);
       await createDocument('projects', projectId, projectData);
-      console.log('Project successfully saved to Firebase');
       return projectId;
     } catch (err) {
-      console.error('=== ADD PROJECT ERROR ===');
-      console.error('Error adding project to Firebase:', err);
-      console.error('Error details:', err.message);
       throw err;
     }
   };
@@ -268,6 +252,46 @@ export const FirebaseProvider = ({ children }) => {
     }
   };
 
+  const deleteContactSubmission = async (submissionId) => {
+    try {
+      await deleteDocument('contactSubmissions', submissionId);
+      return true;
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  // Real-time listeners
+  const subscribeToProjects = (callback) => {
+    const q = query(collection(db, 'projects'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      callback(data);
+    }, (error) => {
+      setError(error.message);
+      callback([]);
+    });
+    return unsubscribe;
+  };
+
+  const subscribeToContacts = (callback) => {
+    const q = query(collection(db, 'contactSubmissions'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      callback(data);
+    }, (error) => {
+      setError(error.message);
+      callback([]);
+    });
+    return unsubscribe;
+  };
+
   // Monitor auth state
   useEffect(() => {
     try {
@@ -306,13 +330,15 @@ export const FirebaseProvider = ({ children }) => {
     
     // Portfolio specific
     addProject,
-    getProjects,
     updateProject,
-    deleteProject,
+    getProjects,
+    subscribeToProjects,
     
-    // Contact
+    // Contact specific
     submitContactForm,
     getContactSubmissions,
+    subscribeToContacts,
+    deleteContactSubmission,
     
     // Clear error
     clearError: () => setError(null)

@@ -10,41 +10,29 @@ const Portfolio = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [projects, setProjects] = useState([]);
   const { isDark } = useTheme();
-  const { getProjects } = useFirebase();
+  const { subscribeToProjects } = useFirebase();
 
   // Load projects from Firebase Firestore and merge with default projects
   useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        console.log('Starting to load projects from Firebase...');
-        // Fetch projects from Firebase
-        const firebaseProjects = await getProjects();
-        console.log('Firebase projects fetched:', firebaseProjects);
-        console.log('Firebase projects length:', firebaseProjects?.length);
-        
-        let uploadedProjects = [];
-        
-        if (firebaseProjects && firebaseProjects.length > 0) {
-          // Map Firebase projects to portfolio format
-          uploadedProjects = firebaseProjects.map(project => {
-            console.log('Processing Firebase project:', project);
-            return {
-              id: project.id,
-              title: project.title,
-              category: project.category,
-              image: project.imageUrl, // Use uploaded image URL
-              description: project.description,
-              materials: project.technologies || 'Interior design, modern materials',
-              details: project.description
-            };
-          });
-          console.log('Mapped Firebase projects:', uploadedProjects);
-        } else {
-          console.log('No Firebase projects found or empty array');
-        }
-        
-        // Default projects (existing projects)
-        const defaultProjects = [
+    // Set up real-time listener for projects
+    const unsubscribe = subscribeToProjects((firebaseProjects) => {
+      let uploadedProjects = [];
+      
+      if (firebaseProjects && firebaseProjects.length > 0) {
+        // Map Firebase projects to portfolio format
+        uploadedProjects = firebaseProjects.map(project => ({
+          id: project.id,
+          title: project.title,
+          category: project.category,
+          image: project.imageUrl, // Use uploaded image URL
+          description: project.description,
+          materials: project.technologies || 'Interior design, modern materials',
+          details: project.description
+        }));
+      }
+      
+      // Default projects (existing projects)
+      const defaultProjects = [
             // Bedroom Projects (B1-B6)
             {
               id: 1,
@@ -271,33 +259,15 @@ const Portfolio = () => {
           ];
         
         // Merge uploaded projects with default projects
-        const allProjects = [...uploadedProjects, ...defaultProjects];
-        console.log('All projects merged:', allProjects);
-        console.log('Setting projects state with:', allProjects.length, 'projects');
-        setProjects(allProjects);
-        console.log('Projects state set successfully');
-      } catch (error) {
-        console.error('Error loading projects:', error);
-        console.error('Error details:', error.message);
-        // Fallback to default projects on error
-        const fallbackProjects = [
-          {
-            id: 1,
-            title: 'Master Bedroom Design B1',
-            category: 'bedroom',
-            image: '/projects/B1.jpg',
-            description: 'Elegant master bedroom featuring custom furniture and sophisticated lighting design',
-            materials: 'Custom furniture, LED lighting, premium materials, silk curtains',
-            details: 'A sophisticated master bedroom designed for comfort and style, featuring custom furniture pieces and carefully selected lighting to create a serene atmosphere.'
-          }
-        ];
-        console.log('Using fallback projects:', fallbackProjects);
-        setProjects(fallbackProjects);
-      }
-    };
+      const allProjects = [...uploadedProjects, ...defaultProjects];
+      setProjects(allProjects);
+    });
 
-    loadProjects();
-  }, []);
+    // Cleanup listener on unmount
+    return () => {
+      unsubscribe();
+    };
+  }, [subscribeToProjects]);
 
   const categories = [
     { id: 'All Projects', name: 'All Projects' },
@@ -314,11 +284,6 @@ const Portfolio = () => {
     : projects.filter(project => 
         project.category?.toLowerCase() === selectedCategory.toLowerCase()
       );
-
-  // Debugging logs
-  console.log('Selected category:', selectedCategory);
-  console.log('All projects:', projects);
-  console.log('Filtered projects:', filteredProjects);
 
   return (
     <section id="portfolio" className="py-20 section-surface">
@@ -390,6 +355,10 @@ const Portfolio = () => {
                       alt={project.title}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 cursor-pointer"
                       onClick={() => setSelectedProject(project)}
+                      onError={(e) => {
+                        // Use a reliable fallback that doesn't rely on external services
+                        e.target.src = `data:image/svg+xml;base64,${btoa('<svg width="400" height="200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200"><rect width="400" height="200" fill="#f3f4f6"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="#666" font-family="Arial, sans-serif" font-size="14">Image Not Available</text></svg>')}`;
+                      }}
                     />
                     
                     {/* Premium Overlay */}
@@ -460,6 +429,10 @@ const Portfolio = () => {
                       src={selectedProject.image}
                       alt={selectedProject.title}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Use a reliable fallback that doesn't rely on external services
+                        e.target.src = `data:image/svg+xml;base64,${btoa('<svg width="400" height="200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200"><rect width="400" height="200" fill="#f3f4f6"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="#666" font-family="Arial, sans-serif" font-size="14">Image Not Available</text></svg>')}`;
+                      }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                   </div>

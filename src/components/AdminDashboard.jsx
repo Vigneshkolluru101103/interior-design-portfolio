@@ -6,7 +6,7 @@ import { useFirebase } from '../contexts/FirebaseContext';
 import { db } from '../firebase/firebaseConfig';
 import { 
   Plus, 
-  Edit, 
+  Edit2, 
   Trash2, 
   LogOut, 
   FolderOpen, 
@@ -21,10 +21,11 @@ import {
   CheckCircle,
   Clock
 } from 'lucide-react';
+import { validateProjectData, sanitizeProjectData, validateImageUrl } from '../utils/validation';
 
 const AdminDashboard = () => {
   const { isDark } = useTheme();
-  const { user, logout, getContactSubmissions, deleteDocument, updateDocument, addProject, updateProject: updateProjectFirebase } = useFirebase();
+  const { user, logout, getContactSubmissions, deleteDocument, updateDocument, addProject, updateProject: updateProjectFirebase, subscribeToProjects, subscribeToContacts } = useFirebase();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [contacts, setContacts] = useState([]);
@@ -62,69 +63,26 @@ const AdminDashboard = () => {
       return;
     }
     
-    // Load data from localStorage for projects and Firebase for contacts
-    loadProjects();
-    loadFirebaseContacts();
+    // Set up real-time listeners for projects and contacts
+    const unsubscribeProjects = subscribeToProjects((data) => {
+      setProjects(data);
+    });
     
-    // Set loading to false after data is loaded
+    const unsubscribeContacts = subscribeToContacts((data) => {
+      setContacts(data);
+    });
+    
+    // Set loading to false after initial data is loaded
     setTimeout(() => {
       setIsLoading(false);
     }, 100);
-  }, [user, navigate]);
-
-  const loadProjects = () => {
-    try {
-      const savedProjects = localStorage.getItem('portfolioProjects');
-      if (savedProjects) {
-        setProjects(JSON.parse(savedProjects));
-      } else {
-        // Default sample projects
-        const defaultProjects = [
-          {
-            id: 1,
-            title: 'Luxury Villa Interior',
-            category: 'Residential',
-            description: 'Complete interior design for a modern luxury villa with contemporary aesthetics.',
-            imageUrl: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=800',
-            technologies: '3DS-MAX, V-Ray, Photoshop',
-            client: 'Private Client',
-            year: '2023',
-            status: 'completed'
-          },
-          {
-            id: 2,
-            title: 'Corporate Office Design',
-            category: 'Commercial',
-            description: 'Modern office space design focusing on productivity and employee wellbeing.',
-            imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800',
-            technologies: 'AutoCAD, SketchUp, Enscape',
-            client: 'Tech Corp',
-            year: '2023',
-            status: 'completed'
-          }
-        ];
-        setProjects(defaultProjects);
-        localStorage.setItem('portfolioProjects', JSON.stringify(defaultProjects));
-      }
-    } catch (error) {
-      console.error('Error loading projects:', error);
-    }
-  };
-
-  const loadFirebaseContacts = async () => {
-    try {
-      console.log('Loading contacts from Firebase...');
-      const contactsData = await getContactSubmissions();
-      console.log('Contacts loaded from Firebase:', contactsData.length);
-      console.log('Contacts data:', contactsData);
-      setContacts(contactsData);
-    } catch (error) {
-      console.error('Error loading contacts from Firebase:', error);
-      console.error('Error details:', error.message);
-      // Fallback to empty contacts array if Firebase fails
-      setContacts([]);
-    }
-  };
+    
+    // Cleanup listeners on unmount
+    return () => {
+      unsubscribeProjects();
+      unsubscribeContacts();
+    };
+  }, [user, navigate, subscribeToProjects, subscribeToContacts]);
 
   const markContactAsRead = async (contactId) => {
     try {
@@ -278,27 +236,14 @@ const AdminDashboard = () => {
   const confirmDeleteProject = async () => {
     if (projectToDelete) {
       try {
-        console.log('=== PROJECT DELETION STARTED ===');
-        console.log('Deleting project:', projectToDelete);
-        console.log('Project ID:', projectToDelete.id);
-        
         // Delete from Firebase Firestore
         await deleteDocument('projects', projectToDelete.id);
-        console.log('Project deleted from Firebase successfully');
-        
-        // Update local state
-        const updatedProjects = projects.filter(p => p.id !== projectToDelete.id);
-        setProjects(updatedProjects);
-        console.log('Local state updated');
         
         setShowDeleteModal(false);
         setProjectToDelete(null);
         showToast('Project deleted successfully!', 'success');
-        console.log('=== PROJECT DELETION COMPLETED ===');
       } catch (error) {
-        console.error('=== PROJECT DELETION ERROR ===');
         console.error('Error deleting project:', error);
-        console.error('Error details:', error.message);
         showToast('Error deleting project: ' + error.message, 'error');
       }
     }
@@ -322,58 +267,58 @@ const AdminDashboard = () => {
   const handleSubmitProject = async (e) => {
     e.preventDefault();
     
-    console.log('=== PROJECT SUBMISSION STARTED ===');
-    console.log('Form data being submitted:', formData);
-    console.log('Is editing project:', !!editingProject);
+    // Sanitize and validate form data
+    const sanitizedData = sanitizeProjectData(formData);
+    const validation = validateProjectData(sanitizedData);
+    
+    if (!validation.isValid) {
+      // Handle validation errors properly
+      if (validation.errors) {
+        // Convert object values to array and iterate
+        const errorMessages = Object.values(validation.errors);
+        errorMessages.forEach(error => {
+          showToast(error, 'error');
+        });
+      }
+      return;
+    }
+    
     
     try {
       if (editingProject) {
-        console.log('Updating existing project:', editingProject.id);
         // Update existing project in Firebase
-        await updateProjectFirebase(editingProject.id, formData);
-        console.log('Project updated successfully in Firebase');
-        
-        // Update local state
-        const updatedProjects = projects.map(p => 
-          p.id === editingProject.id 
-            ? { ...formData, id: editingProject.id }
-            : p
-        );
-        setProjects(updatedProjects);
+        await updateProjectFirebase(editingProject.id, sanitizedData);
         showToast('Project updated successfully!', 'success');
       } else {
-        console.log('Adding new project to Firebase...');
         // Add new project to Firebase
-        const projectId = await addProject(formData);
-        console.log('Project added to Firebase with ID:', projectId);
-        
-        // Update local state with the new project
-        const newProject = {
-          ...formData,
-          id: projectId
-        };
-        const updatedProjects = [...projects, newProject];
-        setProjects(updatedProjects);
-        console.log('Local state updated with new project');
+        const projectId = await addProject(sanitizedData);
         showToast('Project added successfully!', 'success');
       }
       
       setShowProjectForm(false);
       setEditingProject(null);
       setImageFile(null);
-      console.log('=== PROJECT SUBMISSION COMPLETED ===');
     } catch (error) {
-      console.error('=== PROJECT SUBMISSION ERROR ===');
       console.error('Error saving project:', error);
-      console.error('Error details:', error.message);
       showToast('Error saving project: ' + error.message, 'error');
     }
   };
 
   const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Special handling for image URL validation
+    if (name === 'imageUrl') {
+      const validation = validateImageUrl(value);
+      if (!validation.isValid) {
+        // Show validation error but don't block input
+        showToast(validation.error, 'error');
+      }
+    }
+    
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
   };
 
@@ -659,6 +604,9 @@ const AdminDashboard = () => {
                               src={project.imageUrl}
                               alt={project.title}
                               className="w-10 h-10 rounded-lg object-cover mr-3"
+                              onError={(e) => {
+                                e.target.src = 'https://via.placeholder.com/40x40?text=No+Img';
+                              }}
                             />
                             <div>
                               <div className="text-sm font-medium text-heading">
@@ -696,7 +644,7 @@ const AdminDashboard = () => {
                               onClick={() => handleEditProject(project)}
                               className="text-blue-400 hover:text-blue-600 transition-colors"
                             >
-                              <Edit className="w-4 h-4" />
+                              <Edit2 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDeleteProject(project.id)}
