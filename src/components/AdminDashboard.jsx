@@ -24,7 +24,7 @@ import {
 
 const AdminDashboard = () => {
   const { isDark } = useTheme();
-  const { user, logout, getContactSubmissions } = useFirebase();
+  const { user, logout, getContactSubmissions, deleteDocument, updateDocument } = useFirebase();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [contacts, setContacts] = useState([]);
@@ -122,8 +122,8 @@ const AdminDashboard = () => {
 
   const markContactAsRead = async (contactId) => {
     try {
-      const contactRef = db.collection('contactSubmissions').doc(contactId);
-      await contactRef.update({ status: 'read' });
+      // Use the Firebase context updateDocument function
+      await updateDocument('contactSubmissions', contactId, { status: 'read' });
       
       const updatedContacts = contacts.map(contact =>
         contact.id === contactId ? { ...contact, status: 'read' } : contact
@@ -132,23 +132,23 @@ const AdminDashboard = () => {
       showToast('Contact marked as read!', 'success');
     } catch (error) {
       console.error('Error marking contact as read:', error);
-      showToast('Error updating contact', 'error');
+      console.error('Error details:', error.message);
+      showToast('Error updating contact: ' + error.message, 'error');
     }
   };
 
   const deleteContact = async (contactId) => {
-    if (window.confirm('Are you sure you want to delete this contact submission?')) {
-      try {
-        const contactRef = db.collection('contactSubmissions').doc(contactId);
-        await contactRef.delete();
-        
-        const updatedContacts = contacts.filter(contact => contact.id !== contactId);
-        setContacts(updatedContacts);
-        showToast('Contact deleted successfully!', 'success');
-      } catch (error) {
-        console.error('Error deleting contact:', error);
-        showToast('Error deleting contact', 'error');
-      }
+    try {
+      // Use the Firebase context deleteDocument function
+      await deleteDocument('contactSubmissions', contactId);
+      
+      const updatedContacts = contacts.filter(contact => contact.id !== contactId);
+      setContacts(updatedContacts);
+      showToast('Contact deleted successfully!', 'success');
+    } catch (error) {
+      console.error('Error deleting contact:', error);
+      console.error('Error details:', error.message);
+      showToast('Error deleting contact: ' + error.message, 'error');
     }
   };
 
