@@ -10,10 +10,29 @@ const Portfolio = () => {
   const [projects, setProjects] = useState([]);
   const { isDark } = useTheme();
 
-  // Load projects directly from uploaded images
+  // Load projects from localStorage and merge with default projects
   useEffect(() => {
-    // All uploaded projects from src/projects
-    setProjects([
+    const loadProjects = () => {
+      try {
+        const savedProjects = localStorage.getItem('portfolioProjects');
+        let uploadedProjects = [];
+        
+        if (savedProjects) {
+          const projectsData = JSON.parse(savedProjects);
+          // Map localStorage projects to portfolio format
+          uploadedProjects = projectsData.map(project => ({
+            id: project.id,
+            title: project.title,
+            category: project.category,
+            image: project.imageUrl, // Use uploaded image
+            description: project.description,
+            materials: project.technologies || 'Interior design, modern materials',
+            details: project.description
+          }));
+        }
+        
+        // Default projects (existing projects)
+        const defaultProjects = [
             // Bedroom Projects (B1-B6)
             {
               id: 1,
@@ -237,15 +256,39 @@ const Portfolio = () => {
               materials: 'Space planning, layout optimization, professional design, efficient utilization',
               details: 'A comprehensive space planning solution showcasing professional layout optimization and efficient space utilization for modern residential design.'
             }
-          ]);
+          ];
+        
+        // Merge uploaded projects with default projects
+        const allProjects = [...uploadedProjects, ...defaultProjects];
+        setProjects(allProjects);
+      } catch (error) {
+        console.error('Error loading projects:', error);
+        // Fallback to default projects on error
+        setProjects([
+          {
+            id: 1,
+            title: 'Master Bedroom Design B1',
+            category: 'bedroom',
+            image: '/projects/B1.jpg',
+            description: 'Elegant master bedroom featuring custom furniture and sophisticated lighting design',
+            materials: 'Custom furniture, LED lighting, premium materials, silk curtains',
+            details: 'A sophisticated master bedroom designed for comfort and style, featuring custom furniture pieces and carefully selected lighting to create a serene atmosphere.'
+          }
+        ]);
+      }
+    };
+
+    loadProjects();
   }, []);
 
   const categories = [
     { id: 'all', name: 'All Projects' },
-    { id: 'living', name: 'Living Room' },
     { id: 'bedroom', name: 'Bedroom' },
+    { id: 'living', name: 'Living Room' },
     { id: 'kitchen', name: 'Kitchen' },
-    { id: 'autocad', name: 'AutoCAD Works' }
+    { id: 'workspace', name: 'Workspace' },
+    { id: 'autocad', name: 'AutoCAD Works' },
+    { id: 'Residential', name: 'Residential' }
   ];
 
   const filteredProjects = selectedCategory === 'all' 

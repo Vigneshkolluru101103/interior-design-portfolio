@@ -132,7 +132,7 @@ const AdminLogin = () => {
                   onChange={handleChange}
                   required
                   className="form-input w-full pl-10"
-                  placeholder="enter the valid mail"
+                  placeholder="Enter the mail"
                 />
               </div>
             </motion.div>

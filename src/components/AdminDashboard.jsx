@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useFirebase } from '../contexts/FirebaseContext';
+import { db } from '../firebase/firebaseConfig';
 import { 
   Plus, 
   Edit, 
@@ -23,7 +24,7 @@ import {
 
 const AdminDashboard = () => {
   const { isDark } = useTheme();
-  const { user, logout } = useFirebase();
+  const { user, logout, getContactSubmissions } = useFirebase();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [contacts, setContacts] = useState([]);
@@ -31,6 +32,12 @@ const AdminDashboard = () => {
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [activeTab, setActiveTab] = useState('projects');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState(null);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [selectedContact, setSelectedContact] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     category: '',
@@ -49,9 +56,9 @@ const AdminDashboard = () => {
       return;
     }
     
-    // Load data from localStorage
+    // Load data from localStorage for projects and Firebase for contacts
     loadProjects();
-    loadContacts();
+    loadFirebaseContacts();
     
     // Set loading to false after data is loaded
     setTimeout(() => {
@@ -98,63 +105,74 @@ const AdminDashboard = () => {
     }
   };
 
-  const loadContacts = () => {
+  const loadFirebaseContacts = async () => {
     try {
-      const savedContacts = localStorage.getItem('contactSubmissions');
-      if (savedContacts) {
-        setContacts(JSON.parse(savedContacts));
-      } else {
-        // Default sample contacts
-        const defaultContacts = [
-          {
-            id: 1,
-            name: 'John Smith',
-            email: 'john@example.com',
-            phone: '+91 98765 43210',
-            project: 'Luxury Villa Design',
-            message: 'I would like to discuss a luxury villa project. Please contact me for more details.',
-            timestamp: '2024-01-15T10:30:00.000Z',
-            status: 'new'
-          },
-          {
-            id: 2,
-            name: 'Sarah Johnson',
-            email: 'sarah@example.com',
-            phone: '+91 87654 32109',
-            project: 'Office Interior',
-            message: 'We need interior design for our new office space. Looking for modern design solutions.',
-            timestamp: '2024-01-14T14:45:00.000Z',
-            status: 'read'
-          }
-        ];
-        setContacts(defaultContacts);
-        localStorage.setItem('contactSubmissions', JSON.stringify(defaultContacts));
-      }
+      console.log('Loading contacts from Firebase...');
+      const contactsData = await getContactSubmissions();
+      console.log('Contacts loaded from Firebase:', contactsData.length);
+      console.log('Contacts data:', contactsData);
+      setContacts(contactsData);
     } catch (error) {
-      console.error('Error loading contacts:', error);
-    } finally {
-      setIsLoading(false);
+      console.error('Error loading contacts from Firebase:', error);
+      console.error('Error details:', error.message);
+      // Fallback to empty contacts array if Firebase fails
+      setContacts([]);
     }
   };
 
-  const markContactAsRead = (contactId) => {
-    const updatedContacts = contacts.map(contact =>
-      contact.id === contactId ? { ...contact, status: 'read' } : contact
-    );
-    setContacts(updatedContacts);
-    localStorage.setItem('contactSubmissions', JSON.stringify(updatedContacts));
+  const markContactAsRead = async (contactId) => {
+    try {
+      const contactRef = db.collection('contactSubmissions').doc(contactId);
+      await contactRef.update({ status: 'read' });
+      
+      const updatedContacts = contacts.map(contact =>
+        contact.id === contactId ? { ...contact, status: 'read' } : contact
+      );
+      setContacts(updatedContacts);
+      showToast('Contact marked as read!', 'success');
+    } catch (error) {
+      console.error('Error marking contact as read:', error);
+      showToast('Error updating contact', 'error');
+    }
   };
 
-  const deleteContact = (contactId) => {
+  const deleteContact = async (contactId) => {
     if (window.confirm('Are you sure you want to delete this contact submission?')) {
-      const updatedContacts = contacts.filter(c => c.id !== contactId);
-      setContacts(updatedContacts);
-      localStorage.setItem('contactSubmissions', JSON.stringify(updatedContacts));
+      try {
+        const contactRef = db.collection('contactSubmissions').doc(contactId);
+        await contactRef.delete();
+        
+        const updatedContacts = contacts.filter(contact => contact.id !== contactId);
+        setContacts(updatedContacts);
+        showToast('Contact deleted successfully!', 'success');
+      } catch (error) {
+        console.error('Error deleting contact:', error);
+        showToast('Error deleting contact', 'error');
+      }
     }
   };
 
   const formatDate = (timestamp) => {
-    return new Date(timestamp).toLocaleString('en-US', {
+    if (!timestamp) return 'No date';
+    
+    let date;
+    // Handle Firebase timestamp object
+    if (timestamp && typeof timestamp.toDate === 'function') {
+      date = timestamp.toDate();
+    } else if (timestamp && timestamp.seconds) {
+      // Handle Firebase timestamp with seconds
+      date = new Date(timestamp.seconds * 1000);
+    } else {
+      // Handle regular timestamp string or number
+      date = new Date(timestamp);
+    }
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return 'Invalid Date';
+    }
+    
+    return date.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -209,6 +227,7 @@ const AdminDashboard = () => {
 
   const handleAddProject = () => {
     setEditingProject(null);
+    setImageFile(null);
     setFormData({
       title: '',
       category: '',
@@ -224,16 +243,78 @@ const AdminDashboard = () => {
 
   const handleEditProject = (project) => {
     setEditingProject(project);
+    setImageFile(null);
     setFormData(project);
     setShowProjectForm(true);
   };
 
+  const handleImageUpload = async (file) => {
+    if (!file) return;
+    
+    setUploadingImage(true);
+    try {
+      // Convert file to base64 for localStorage storage
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64String = event.target.result;
+        setFormData(prev => ({ 
+          ...prev, 
+          imageUrl: base64String
+        }));
+        setImageFile(file);
+        showToast('Image uploaded successfully!', 'success');
+      };
+      reader.onerror = () => {
+        showToast('Error uploading image', 'error');
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      showToast('Error uploading image', 'error');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData(prev => ({ 
+      ...prev, 
+      imageUrl: ''
+    }));
+    setImageFile(null);
+    showToast('Image removed', 'warning');
+  };
+
   const handleDeleteProject = (projectId) => {
-    if (window.confirm('Are you sure you want to delete this project?')) {
-      const updatedProjects = projects.filter(p => p.id !== projectId);
+    const project = projects.find(p => p.id === projectId);
+    setProjectToDelete(project);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteProject = () => {
+    if (projectToDelete) {
+      const updatedProjects = projects.filter(p => p.id !== projectToDelete.id);
       setProjects(updatedProjects);
       localStorage.setItem('portfolioProjects', JSON.stringify(updatedProjects));
+      setShowDeleteModal(false);
+      setProjectToDelete(null);
+      showToast('Project deleted successfully!', 'success');
     }
+  };
+
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setProjectToDelete(null);
+  };
+
+  const handleViewContact = (contact) => {
+    setSelectedContact(contact);
+    setShowContactModal(true);
+  };
+
+  const handleCloseContactModal = () => {
+    setShowContactModal(false);
+    setSelectedContact(null);
   };
 
   const handleSubmitProject = (e) => {
@@ -261,6 +342,7 @@ const AdminDashboard = () => {
     
     setShowProjectForm(false);
     setEditingProject(null);
+    setImageFile(null);
   };
 
   const handleInputChange = (e) => {
@@ -479,7 +561,7 @@ const AdminDashboard = () => {
                   <p className="text-body text-sm">This Week</p>
                   <p className="text-2xl font-bold text-heading">
                     {contacts.filter(c => {
-                      const contactDate = new Date(c.timestamp);
+                      const contactDate = new Date(c.createdAt);
                       const weekAgo = new Date();
                       weekAgo.setDate(weekAgo.getDate() - 7);
                       return contactDate >= weekAgo;
@@ -649,7 +731,8 @@ const AdminDashboard = () => {
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.5 + index * 0.1 }}
-                        className={`hover:bg-surface-50 dark:hover:bg-surface-800/50 ${
+                        onClick={() => handleViewContact(contact)}
+                        className={`hover:bg-surface-50 dark:hover:bg-surface-800/50 cursor-pointer ${
                           contact.status === 'new' ? 'bg-blue-50 dark:bg-blue-900/10' : ''
                         }`}
                       >
@@ -688,7 +771,7 @@ const AdminDashboard = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-body">
                           <div className="flex items-center">
                             <Calendar className="w-4 h-4 mr-2" />
-                            {formatDate(contact.timestamp)}
+                            {formatDate(contact.createdAt)}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -814,16 +897,53 @@ const AdminDashboard = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-heading mb-2">
-                    Image URL
+                    Project Image
                   </label>
-                  <input
-                    type="url"
-                    name="imageUrl"
-                    value={formData.imageUrl}
-                    onChange={handleInputChange}
-                    required
-                    className="form-input w-full"
-                  />
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            setImageFile(file);
+                            handleImageUpload(file);
+                          }
+                        }}
+                        disabled={uploadingImage}
+                        className="form-input flex-1"
+                      />
+                      {uploadingImage && (
+                        <div className="animate-spin w-5 h-5 border-2 border-accent-400 border-t-transparent rounded-full"></div>
+                      )}
+                    </div>
+                    {formData.imageUrl && (
+                      <div className="mt-2 relative">
+                        <img
+                          src={formData.imageUrl}
+                          alt="Project preview"
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleRemoveImage}
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                          title="Remove image"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                        <p className="text-xs text-gray-500 mt-1">Image uploaded successfully</p>
+                      </div>
+                    )}
+                    <input
+                      type="hidden"
+                      name="imageUrl"
+                      value={formData.imageUrl}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -906,6 +1026,210 @@ const AdminDashboard = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    {/* Custom Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl"
+          >
+            <div className="text-center">
+              {/* Warning Icon */}
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 dark:bg-red-900/30 mb-4">
+                <Trash2 className="h-8 w-8 text-red-600 dark:text-red-400" />
+              </div>
+              
+              {/* Modal Title */}
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                Delete Project
+              </h3>
+              
+              {/* Modal Description */}
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Are you sure you want to delete "{projectToDelete?.title}"? This action cannot be undone.
+              </p>
+              
+              {/* Project Info */}
+              {projectToDelete && (
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 mb-6 text-left">
+                  <div className="flex items-center space-x-3">
+                    {projectToDelete.imageUrl && (
+                      <img 
+                        src={projectToDelete.imageUrl} 
+                        alt={projectToDelete.title}
+                        className="w-12 h-12 object-cover rounded-lg"
+                      />
+                    )}
+                    <div>
+                      <p className="font-semibold text-gray-900 dark:text-white">{projectToDelete.title}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{projectToDelete.category}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={cancelDelete}
+                  className="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDeleteProject}
+                  className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center justify-center space-x-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete Project</span>
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Contact Details Modal */}
+      {showContactModal && selectedContact && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.3 }}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          >
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-accent-500 to-accent-600 p-6 rounded-t-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                    <MessageSquare className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-white">{selectedContact.name}</h3>
+                    <p className="text-accent-100">Contact Details</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleCloseContactModal}
+                  className="text-white/80 hover:text-white transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {/* Contact Information Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                      <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{selectedContact.email}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                      <Phone className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Phone</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{selectedContact.phone || 'Not provided'}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                      <FolderOpen className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Project Type</p>
+                      <p className="font-medium text-gray-900 dark:text-white capitalize">{selectedContact.project || 'Not specified'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
+                      <Calendar className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Submitted Date</p>
+                      <p className="font-medium text-gray-900 dark:text-white">{formatDate(selectedContact.createdAt)}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                        selectedContact.status === 'new' 
+                          ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                          : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                      }`}>
+                        {selectedContact.status === 'new' ? 'New' : 'Read'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Message Section */}
+              <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Message</h4>
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                  {selectedContact.message}
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                {selectedContact.status === 'new' && (
+                  <button
+                    onClick={() => {
+                      markContactAsRead(selectedContact.id);
+                      handleCloseContactModal();
+                    }}
+                    className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Mark as Read</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    deleteContact(selectedContact.id);
+                    handleCloseContactModal();
+                  }}
+                  className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center justify-center space-x-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete Contact</span>
+                </button>
+                <button
+                  onClick={handleCloseContactModal}
+                  className="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </motion.div>
         </div>
