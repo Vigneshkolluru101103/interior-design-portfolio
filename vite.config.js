@@ -14,12 +14,22 @@ export default defineConfig({
     minify: 'terser',
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          firebase: ['firebase'],
-          router: ['react-router-dom'],
-          animation: ['framer-motion'],
-          icons: ['lucide-react']
+        manualChunks(id) {
+          if (id.includes('react') || id.includes('react-dom')) {
+            return 'vendor';
+          }
+          if (id.includes('firebase')) {
+            return 'firebase';
+          }
+          if (id.includes('react-router-dom')) {
+            return 'router';
+          }
+          if (id.includes('framer-motion')) {
+            return 'animation';
+          }
+          if (id.includes('lucide-react')) {
+            return 'icons';
+          }
         }
       }
     },
