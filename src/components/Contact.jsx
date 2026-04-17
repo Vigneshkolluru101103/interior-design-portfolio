@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, MessageSquare, Download } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useFirebase } from '../contexts/FirebaseContext';
 
 const Contact = () => {
   const { isDark } = useTheme();
+  const { submitContactForm } = useFirebase();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -12,62 +14,13 @@ const Contact = () => {
     project: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState('');
+  const [submitMessage, setSubmitMessage] = useState('');
 
   useEffect(() => {
-    // Load PDFs into localStorage if not already present
-    const loadPDFs = async () => {
-      try {
-        // Load Resume PDF
-        if (!localStorage.getItem('resumePDF')) {
-          const resumeResponse = await fetch('/resume/Arun_Resume.pdf');
-          if (resumeResponse.ok) {
-            const resumeBlob = await resumeResponse.blob();
-            const resumeReader = new FileReader();
-            resumeReader.onload = () => {
-              const base64data = resumeReader.result;
-              localStorage.setItem('resumePDF', base64data);
-              localStorage.setItem('resumePDFName', 'Arun_Resume.pdf');
-              console.log('Resume PDF loaded to localStorage');
-            };
-            resumeReader.readAsDataURL(resumeBlob);
-          }
-        }
-
-        // Load Portfolio PDF
-        if (!localStorage.getItem('portfolioPDF')) {
-          console.log('Loading portfolio PDF...');
-          const portfolioResponse = await fetch('/resume/Arun_Kumar_Portfolio.pdf');
-          console.log('Portfolio response:', portfolioResponse.status, portfolioResponse.ok);
-          
-          if (portfolioResponse.ok) {
-            console.log('Portfolio response OK, reading blob...');
-            const portfolioBlob = await portfolioResponse.blob();
-            console.log('Portfolio blob size:', portfolioBlob.size);
-            
-            const portfolioReader = new FileReader();
-            portfolioReader.onload = () => {
-              const base64data = portfolioReader.result;
-              console.log('Portfolio base64 length:', base64data.length);
-              localStorage.setItem('portfolioPDF', base64data);
-              localStorage.setItem('portfolioPDFName', 'Arun_Kumar_Portfolio.pdf');
-              console.log('Portfolio PDF loaded to localStorage');
-            };
-            portfolioReader.onerror = (error) => {
-              console.error('Portfolio FileReader error:', error);
-            };
-            portfolioReader.readAsDataURL(portfolioBlob);
-          } else {
-            console.error('Portfolio fetch failed:', portfolioResponse.status, portfolioResponse.statusText);
-          }
-        } else {
-          console.log('Portfolio PDF already in localStorage');
-        }
-      } catch (error) {
-        console.error('Error loading PDFs:', error);
-      }
-    };
-
-    loadPDFs();
+    // PDFs will be downloaded directly from server, no localStorage needed
+    console.log('Contact component mounted - PDFs will be downloaded directly');
   }, []);
 
   const handleChange = (e) => {
@@ -77,37 +30,34 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('');
     
-    // Save contact submission to localStorage
-    const submission = {
-      id: Date.now(),
-      ...formData,
-      timestamp: new Date().toISOString(),
-      status: 'new'
-    };
-    
-    // Get existing submissions
-    const existingSubmissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]');
-    
-    // Add new submission
-    existingSubmissions.unshift(submission);
-    
-    // Save to localStorage
-    localStorage.setItem('contactSubmissions', JSON.stringify(existingSubmissions));
-    
-    // Show success message
-    alert('Thank you for your message! I will get back to you soon.');
-    
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      project: '',
-      message: ''
-    });
+    try {
+      // Submit contact form to Firebase
+      await submitContactForm(formData);
+      
+      // Show success message
+      setSubmitStatus('success');
+      setSubmitMessage('Contact details sent successfully! Thank you for your message. I will get back to you soon.');
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        project: '',
+        message: ''
+      });
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setSubmitStatus('error');
+      setSubmitMessage(`Sorry, there was an error submitting your message. Please try again or contact directly at arunkumarkolluru0@gmail.com`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -262,6 +212,21 @@ const Contact = () => {
                     <Send className="w-5 h-5" />
                     Send Message
                   </motion.button>
+                  
+                  {/* Success/Error Message */}
+                  {submitMessage && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`mt-4 p-4 rounded-lg text-sm ${
+                        submitStatus === 'success' 
+                          ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400'
+                          : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400'
+                      }`}
+                    >
+                      {submitMessage}
+                    </motion.div>
+                  )}
                 </form>
               </div>
             </motion.div>
@@ -324,17 +289,16 @@ const Contact = () => {
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
-                  const resumePDF = localStorage.getItem('resumePDF');
-                  if (resumePDF) {
-                    const link = document.createElement('a');
-                    link.href = resumePDF;
-                    link.download = 'Arun_Kumar_Resume.pdf';
-                    document.body.appendChild(link);
-                    link.click();
+                  // Direct download for resume PDF
+                  const link = document.createElement('a');
+                  link.href = '/resume/Arun_Resume.pdf';
+                  link.download = 'Arun_Kumar_Resume.pdf';
+                  link.target = '_blank';
+                  document.body.appendChild(link);
+                  link.click();
+                  setTimeout(() => {
                     document.body.removeChild(link);
-                  } else {
-                    alert('Resume PDF not available. Please upload it in the admin dashboard.');
-                  }
+                  }, 100);
                 }}
                 className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-white rounded-xl transition-all duration-300 font-medium shadow-lg"
               >

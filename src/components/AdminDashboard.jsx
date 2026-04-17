@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
+import { useFirebase } from '../contexts/FirebaseContext';
 import { 
   Plus, 
   Edit, 
@@ -22,6 +23,7 @@ import {
 
 const AdminDashboard = () => {
   const { isDark } = useTheme();
+  const { user, logout } = useFirebase();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [contacts, setContacts] = useState([]);
@@ -42,8 +44,7 @@ const AdminDashboard = () => {
 
   // Check authentication
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isAdminLoggedIn');
-    if (!isLoggedIn) {
+    if (!user) {
       navigate('/admin/login');
       return;
     }
@@ -51,7 +52,12 @@ const AdminDashboard = () => {
     // Load data from localStorage
     loadProjects();
     loadContacts();
-  }, [navigate]);
+    
+    // Set loading to false after data is loaded
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 100);
+  }, [user, navigate]);
 
   const loadProjects = () => {
     try {
@@ -190,11 +196,15 @@ const AdminDashboard = () => {
     }, duration);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('isAdminLoggedIn');
-    localStorage.removeItem('adminLoginTime');
-    showToast('Successfully logged out!', 'warning', 3000);
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      showToast('Successfully logged out!', 'warning', 3000);
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+      navigate('/');
+    }
   };
 
   const handleAddProject = () => {

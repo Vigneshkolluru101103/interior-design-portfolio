@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from '../contexts/ThemeContext';
+import { useFirebase } from '../contexts/FirebaseContext';
 import { Mail, Lock, Eye, EyeOff, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -39,34 +40,36 @@ const showToast = (message, type = 'success', duration = 3000) => {
 
 const AdminLogin = () => {
   const { isDark } = useTheme();
+  const { login, user, loading: firebaseLoading } = useFirebase();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+    const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect if already logged in
+  React.useEffect(() => {
+    if (user) {
+      navigate('/admin/dashboard');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    // Simple authentication (in production, this should be handled by a backend)
-    if (formData.email === 'arunkumarkolluru0@gmail.com' && formData.password === 'arunkumar123') {
-      // Store admin session in localStorage
-      localStorage.setItem('isAdminLoggedIn', 'true');
-      localStorage.setItem('adminLoginTime', new Date().toISOString());
+    try {
+      // Firebase authentication
+      await login(formData.email, formData.password);
       
       // Show success message
       showToast('Login successful! Welcome to admin dashboard.', 'success', 3000);
       
-      // Redirect to admin dashboard
-      setTimeout(() => {
-        navigate('/admin/dashboard');
-      }, 500);
-    } else {
+      // Redirect to admin dashboard (handled by useEffect)
+    } catch (err) {
       setError('Invalid email or password. Please try again.');
     }
     
@@ -129,7 +132,7 @@ const AdminLogin = () => {
                   onChange={handleChange}
                   required
                   className="form-input w-full pl-10"
-                  placeholder="admin@interiordesign.com"
+                  placeholder="enter the valid mail"
                 />
               </div>
             </motion.div>
@@ -148,27 +151,14 @@ const AdminLogin = () => {
                   <Lock className="h-5 w-5 text-body" />
                 </div>
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="form-input w-full pl-10 pr-20"
+                  className="form-input w-full pl-10"
                   placeholder="Enter your password"
                 />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="p-2 text-body hover:text-accent-400 transition-colors"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
               </div>
             </motion.div>
 

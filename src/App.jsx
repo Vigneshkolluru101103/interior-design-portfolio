@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { FirebaseProvider } from './contexts/FirebaseContext';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -63,11 +64,13 @@ const AppWrapper = () => {
 
 function App() {
   return (
-    <ThemeProvider>
-      <Router>
-        <AppWrapper />
-      </Router>
-    </ThemeProvider>
+    <FirebaseProvider>
+      <ThemeProvider>
+        <Router>
+          <AppWrapper />
+        </Router>
+      </ThemeProvider>
+    </FirebaseProvider>
   );
 }
 
