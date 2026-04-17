@@ -11,36 +11,6 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
-    minify: 'terser',
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('react') || id.includes('react-dom')) {
-            return 'vendor';
-          }
-          if (id.includes('firebase')) {
-            return 'firebase';
-          }
-          if (id.includes('react-router-dom')) {
-            return 'router';
-          }
-          if (id.includes('framer-motion')) {
-            return 'animation';
-          }
-          if (id.includes('lucide-react')) {
-            return 'icons';
-          }
-        }
-      }
-    },
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true
-      }
-    }
-  },
-  define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')
+    minify: 'terser'
   }
 })
