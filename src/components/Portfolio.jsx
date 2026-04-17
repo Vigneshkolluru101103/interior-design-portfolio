@@ -3,32 +3,44 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Filter, X } from 'lucide-react';
 import Modal from './Modal';
 import { useTheme } from '../contexts/ThemeContext';
+import { useFirebase } from '../contexts/FirebaseContext';
 
 const Portfolio = () => {
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('All Projects');
   const [selectedProject, setSelectedProject] = useState(null);
   const [projects, setProjects] = useState([]);
   const { isDark } = useTheme();
+  const { getProjects } = useFirebase();
 
-  // Load projects from localStorage and merge with default projects
+  // Load projects from Firebase Firestore and merge with default projects
   useEffect(() => {
-    const loadProjects = () => {
+    const loadProjects = async () => {
       try {
-        const savedProjects = localStorage.getItem('portfolioProjects');
+        console.log('Starting to load projects from Firebase...');
+        // Fetch projects from Firebase
+        const firebaseProjects = await getProjects();
+        console.log('Firebase projects fetched:', firebaseProjects);
+        console.log('Firebase projects length:', firebaseProjects?.length);
+        
         let uploadedProjects = [];
         
-        if (savedProjects) {
-          const projectsData = JSON.parse(savedProjects);
-          // Map localStorage projects to portfolio format
-          uploadedProjects = projectsData.map(project => ({
-            id: project.id,
-            title: project.title,
-            category: project.category,
-            image: project.imageUrl, // Use uploaded image
-            description: project.description,
-            materials: project.technologies || 'Interior design, modern materials',
-            details: project.description
-          }));
+        if (firebaseProjects && firebaseProjects.length > 0) {
+          // Map Firebase projects to portfolio format
+          uploadedProjects = firebaseProjects.map(project => {
+            console.log('Processing Firebase project:', project);
+            return {
+              id: project.id,
+              title: project.title,
+              category: project.category,
+              image: project.imageUrl, // Use uploaded image URL
+              description: project.description,
+              materials: project.technologies || 'Interior design, modern materials',
+              details: project.description
+            };
+          });
+          console.log('Mapped Firebase projects:', uploadedProjects);
+        } else {
+          console.log('No Firebase projects found or empty array');
         }
         
         // Default projects (existing projects)
@@ -260,11 +272,15 @@ const Portfolio = () => {
         
         // Merge uploaded projects with default projects
         const allProjects = [...uploadedProjects, ...defaultProjects];
+        console.log('All projects merged:', allProjects);
+        console.log('Setting projects state with:', allProjects.length, 'projects');
         setProjects(allProjects);
+        console.log('Projects state set successfully');
       } catch (error) {
         console.error('Error loading projects:', error);
+        console.error('Error details:', error.message);
         // Fallback to default projects on error
-        setProjects([
+        const fallbackProjects = [
           {
             id: 1,
             title: 'Master Bedroom Design B1',
@@ -274,7 +290,9 @@ const Portfolio = () => {
             materials: 'Custom furniture, LED lighting, premium materials, silk curtains',
             details: 'A sophisticated master bedroom designed for comfort and style, featuring custom furniture pieces and carefully selected lighting to create a serene atmosphere.'
           }
-        ]);
+        ];
+        console.log('Using fallback projects:', fallbackProjects);
+        setProjects(fallbackProjects);
       }
     };
 
@@ -282,7 +300,7 @@ const Portfolio = () => {
   }, []);
 
   const categories = [
-    { id: 'all', name: 'All Projects' },
+    { id: 'All Projects', name: 'All Projects' },
     { id: 'bedroom', name: 'Bedroom' },
     { id: 'living', name: 'Living Room' },
     { id: 'kitchen', name: 'Kitchen' },
@@ -291,9 +309,16 @@ const Portfolio = () => {
     { id: 'Residential', name: 'Residential' }
   ];
 
-  const filteredProjects = selectedCategory === 'all' 
+  const filteredProjects = selectedCategory === 'All Projects' 
     ? projects 
-    : projects.filter(project => project.category === selectedCategory);
+    : projects.filter(project => 
+        project.category?.toLowerCase() === selectedCategory.toLowerCase()
+      );
+
+  // Debugging logs
+  console.log('Selected category:', selectedCategory);
+  console.log('All projects:', projects);
+  console.log('Filtered projects:', filteredProjects);
 
   return (
     <section id="portfolio" className="py-20 section-surface">

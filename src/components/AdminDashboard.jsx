@@ -24,7 +24,7 @@ import {
 
 const AdminDashboard = () => {
   const { isDark } = useTheme();
-  const { user, logout, getContactSubmissions, deleteDocument, updateDocument } = useFirebase();
+  const { user, logout, getContactSubmissions, deleteDocument, updateDocument, addProject, updateProject: updateProjectFirebase } = useFirebase();
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [contacts, setContacts] = useState([]);
@@ -52,6 +52,12 @@ const AdminDashboard = () => {
   // Check authentication
   useEffect(() => {
     if (!user) {
+      navigate('/admin/login');
+      return;
+    }
+    
+    // Verify this is the admin user
+    if (user.email !== 'arunkumarkolluru0@gmail.com') {
       navigate('/admin/login');
       return;
     }
@@ -248,32 +254,11 @@ const AdminDashboard = () => {
     setShowProjectForm(true);
   };
 
-  const handleImageUpload = async (file) => {
-    if (!file) return;
-    
-    setUploadingImage(true);
-    try {
-      // Convert file to base64 for localStorage storage
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64String = event.target.result;
-        setFormData(prev => ({ 
-          ...prev, 
-          imageUrl: base64String
-        }));
-        setImageFile(file);
-        showToast('Image uploaded successfully!', 'success');
-      };
-      reader.onerror = () => {
-        showToast('Error uploading image', 'error');
-      };
-      reader.readAsDataURL(file);
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      showToast('Error uploading image', 'error');
-    } finally {
-      setUploadingImage(false);
-    }
+  const handleImageUrlChange = (url) => {
+    setFormData(prev => ({ 
+      ...prev, 
+      imageUrl: url
+    }));
   };
 
   const handleRemoveImage = () => {
@@ -281,8 +266,7 @@ const AdminDashboard = () => {
       ...prev, 
       imageUrl: ''
     }));
-    setImageFile(null);
-    showToast('Image removed', 'warning');
+    showToast('Image URL removed', 'warning');
   };
 
   const handleDeleteProject = (projectId) => {
@@ -291,14 +275,32 @@ const AdminDashboard = () => {
     setShowDeleteModal(true);
   };
 
-  const confirmDeleteProject = () => {
+  const confirmDeleteProject = async () => {
     if (projectToDelete) {
-      const updatedProjects = projects.filter(p => p.id !== projectToDelete.id);
-      setProjects(updatedProjects);
-      localStorage.setItem('portfolioProjects', JSON.stringify(updatedProjects));
-      setShowDeleteModal(false);
-      setProjectToDelete(null);
-      showToast('Project deleted successfully!', 'success');
+      try {
+        console.log('=== PROJECT DELETION STARTED ===');
+        console.log('Deleting project:', projectToDelete);
+        console.log('Project ID:', projectToDelete.id);
+        
+        // Delete from Firebase Firestore
+        await deleteDocument('projects', projectToDelete.id);
+        console.log('Project deleted from Firebase successfully');
+        
+        // Update local state
+        const updatedProjects = projects.filter(p => p.id !== projectToDelete.id);
+        setProjects(updatedProjects);
+        console.log('Local state updated');
+        
+        setShowDeleteModal(false);
+        setProjectToDelete(null);
+        showToast('Project deleted successfully!', 'success');
+        console.log('=== PROJECT DELETION COMPLETED ===');
+      } catch (error) {
+        console.error('=== PROJECT DELETION ERROR ===');
+        console.error('Error deleting project:', error);
+        console.error('Error details:', error.message);
+        showToast('Error deleting project: ' + error.message, 'error');
+      }
     }
   };
 
@@ -317,32 +319,55 @@ const AdminDashboard = () => {
     setSelectedContact(null);
   };
 
-  const handleSubmitProject = (e) => {
+  const handleSubmitProject = async (e) => {
     e.preventDefault();
     
-    if (editingProject) {
-      // Update existing project
-      const updatedProjects = projects.map(p => 
-        p.id === editingProject.id 
-          ? { ...formData, id: editingProject.id }
-          : p
-      );
-      setProjects(updatedProjects);
-      localStorage.setItem('portfolioProjects', JSON.stringify(updatedProjects));
-    } else {
-      // Add new project
-      const newProject = {
-        ...formData,
-        id: Date.now()
-      };
-      const updatedProjects = [...projects, newProject];
-      setProjects(updatedProjects);
-      localStorage.setItem('portfolioProjects', JSON.stringify(updatedProjects));
-    }
+    console.log('=== PROJECT SUBMISSION STARTED ===');
+    console.log('Form data being submitted:', formData);
+    console.log('Is editing project:', !!editingProject);
     
-    setShowProjectForm(false);
-    setEditingProject(null);
-    setImageFile(null);
+    try {
+      if (editingProject) {
+        console.log('Updating existing project:', editingProject.id);
+        // Update existing project in Firebase
+        await updateProjectFirebase(editingProject.id, formData);
+        console.log('Project updated successfully in Firebase');
+        
+        // Update local state
+        const updatedProjects = projects.map(p => 
+          p.id === editingProject.id 
+            ? { ...formData, id: editingProject.id }
+            : p
+        );
+        setProjects(updatedProjects);
+        showToast('Project updated successfully!', 'success');
+      } else {
+        console.log('Adding new project to Firebase...');
+        // Add new project to Firebase
+        const projectId = await addProject(formData);
+        console.log('Project added to Firebase with ID:', projectId);
+        
+        // Update local state with the new project
+        const newProject = {
+          ...formData,
+          id: projectId
+        };
+        const updatedProjects = [...projects, newProject];
+        setProjects(updatedProjects);
+        console.log('Local state updated with new project');
+        showToast('Project added successfully!', 'success');
+      }
+      
+      setShowProjectForm(false);
+      setEditingProject(null);
+      setImageFile(null);
+      console.log('=== PROJECT SUBMISSION COMPLETED ===');
+    } catch (error) {
+      console.error('=== PROJECT SUBMISSION ERROR ===');
+      console.error('Error saving project:', error);
+      console.error('Error details:', error.message);
+      showToast('Error saving project: ' + error.message, 'error');
+    }
   };
 
   const handleInputChange = (e) => {
@@ -897,25 +922,26 @@ const AdminDashboard = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-heading mb-2">
-                    Project Image
+                    Project Image URL
                   </label>
                   <div className="space-y-3">
                     <div className="flex items-center space-x-3">
                       <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            setImageFile(file);
-                            handleImageUpload(file);
-                          }
-                        }}
-                        disabled={uploadingImage}
+                        type="url"
+                        placeholder="Enter image URL (e.g., https://example.com/image.jpg)"
+                        value={formData.imageUrl}
+                        onChange={(e) => handleImageUrlChange(e.target.value)}
                         className="form-input flex-1"
                       />
-                      {uploadingImage && (
-                        <div className="animate-spin w-5 h-5 border-2 border-accent-400 border-t-transparent rounded-full"></div>
+                      {formData.imageUrl && (
+                        <button
+                          type="button"
+                          onClick={handleRemoveImage}
+                          className="bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors"
+                          title="Remove image URL"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
                       )}
                     </div>
                     {formData.imageUrl && (
@@ -924,25 +950,16 @@ const AdminDashboard = () => {
                           src={formData.imageUrl}
                           alt="Project preview"
                           className="w-full h-32 object-cover rounded-lg"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/400x200?text=Invalid+Image+URL';
+                          }}
                         />
-                        <button
-                          type="button"
-                          onClick={handleRemoveImage}
-                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                          title="Remove image"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                        <p className="text-xs text-gray-500 mt-1">Image uploaded successfully</p>
+                        <p className="text-xs text-gray-500 mt-1">Image URL added successfully</p>
                       </div>
                     )}
-                    <input
-                      type="hidden"
-                      name="imageUrl"
-                      value={formData.imageUrl}
-                      onChange={handleInputChange}
-                      required
-                    />
+                    <p className="text-xs text-gray-400">
+                      Enter a direct URL to an image file (jpg, png, gif, etc.)
+                    </p>
                   </div>
                 </div>
 

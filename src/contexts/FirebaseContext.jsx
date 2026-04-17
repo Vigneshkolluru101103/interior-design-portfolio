@@ -89,11 +89,20 @@ export const FirebaseProvider = ({ children }) => {
   // Firestore functions
   const createDocument = async (collectionName, documentId, data) => {
     try {
+      console.log('=== CREATE DOCUMENT ===');
+      console.log('Collection:', collectionName);
+      console.log('Document ID:', documentId);
+      console.log('Data to save:', data);
       setError(null);
       const docRef = doc(db, collectionName, documentId);
+      console.log('Document reference created:', docRef);
       await setDoc(docRef, data);
-      return docRef;
+      console.log('Document successfully written to Firebase');
+      return true;
     } catch (err) {
+      console.error('=== CREATE DOCUMENT ERROR ===');
+      console.error('Error creating document:', err);
+      console.error('Error details:', err.message);
       setError(err.message);
       throw err;
     }
@@ -177,17 +186,25 @@ export const FirebaseProvider = ({ children }) => {
   // Portfolio specific functions
   const addProject = async (projectData) => {
     try {
+      console.log('=== ADD PROJECT TO FIREBASE ===');
+      console.log('Project data received:', projectData);
       const projectId = `project_${Date.now()}`;
+      console.log('Generated project ID:', projectId);
+      console.log('Calling createDocument with collection: projects, id:', projectId);
       await createDocument('projects', projectId, projectData);
+      console.log('Project successfully saved to Firebase');
       return projectId;
     } catch (err) {
+      console.error('=== ADD PROJECT ERROR ===');
+      console.error('Error adding project to Firebase:', err);
+      console.error('Error details:', err.message);
       throw err;
     }
   };
 
   const getProjects = async () => {
     try {
-      const projects = await getCollection('projects', [orderBy('createdAt', 'desc')]);
+      const projects = await getCollection('projects');
       return projects;
     } catch (err) {
       throw err;
